@@ -16,7 +16,6 @@ ABunnyCharacter::ABunnyCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	/*
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
@@ -24,7 +23,7 @@ ABunnyCharacter::ABunnyCharacter()
 	OurVisibleComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("OurVisibleComponent"));
 
 	OurVisibleComponent->SetupAttachment(RootComponent);
-	*/
+	
 }
 
 // Called when the game starts or when spawned
@@ -43,11 +42,11 @@ void ABunnyCharacter::BeginPlay()
 	PlayerController->bEnableMouseOverEvents = true;
 	*/
 
-	/*
+	
 	InputComponent->BindAxis("MoveX", this, &ABunnyCharacter::Move_XAxis);
 	InputComponent->BindAxis("MoveY", this, &ABunnyCharacter::Move_YAxis);
 	InputComponent->BindAxis("RotateZ", this, &ABunnyCharacter::RotateZ);
-	*/
+	
 	
 }
 
@@ -55,11 +54,9 @@ void ABunnyCharacter::BeginPlay()
 void ABunnyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	/*
+	
 	Movement(DeltaTime);
-	*/
-
+	
 }
 
 
@@ -69,7 +66,7 @@ void ABunnyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
-/*
+
 void ABunnyCharacter::Move_XAxis(float AxisValue)
 {
 	CurrentVelocity.X = FMath::Clamp(AxisValue, -1.0f, 1.0f) * 100.0f;
@@ -94,7 +91,6 @@ void ABunnyCharacter::Movement(float DeltaTime)
 		{
 			SpeedScale += 0.05;
 			SpeedScale > 5.0f ? SpeedScale = 4.0f : SpeedScale;
-
 		}
 		FVector NewLocation = GetActorLocation() + (CurrentVelocity * SpeedScale * DeltaTime);
 		SetActorLocation(NewLocation);
@@ -109,4 +105,3 @@ void ABunnyCharacter::Movement(float DeltaTime)
 	SetActorRotation(TempRotation);
 
 }
-*/

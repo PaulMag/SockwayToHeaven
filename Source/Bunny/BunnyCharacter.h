@@ -24,18 +24,30 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
+	
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	/*
 	UPROPERTY(EditAnywhere)
 		UStaticMeshComponent* OurVisibleComponent;
 
 	UShapeComponent* CollisionCapsule = nullptr;
 
-	//void Move_XAxis(float AxisValue);
-	//void Move_YAxis(float AxisValue);
-	//void RotateZ(float AxisValue);
+	void Move_XAxis(float AxisValue);
+	void Move_YAxis(float AxisValue);
+	void RotateZ(float AxisValue);
 
-	//FVector CurrentVelocity;
-	//float CurrentRotation;
-	
+	FVector CurrentVelocity;
+	float CurrentRotation;
+
+	UPROPERTY(EditAnywhere)
+		float SpeedScale = 1.f;
+		float TimeBeforeAccelerate = 1.f;
+		float TimeAccellerating{ 0.f };
+*/
+	UPROPERTY(EditAnywhere)
+		ACameraActor* IsometricCamera = nullptr;
+	/*
+private:
+	void Movement(float DeltaTime);
+	*/
 };

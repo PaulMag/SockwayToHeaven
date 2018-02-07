@@ -32,6 +32,8 @@ public:
 
 	UShapeComponent* CollisionCapsule = nullptr;
 
+	void Jump();
+	void Fall();
 	
 	void Move_XAxis(float AxisValue);
 	void Move_YAxis(float AxisValue);
@@ -45,6 +47,7 @@ public:
 		float SpeedScale = 1.f;
 		float TimeBeforeAccelerate = 1.f;
 		float TimeAccellerating{ 0.f };
+		float MovementSpeed = 100.0f;
 
 	UPROPERTY(EditAnywhere)
 		ACameraActor* IsometricCamera = nullptr;

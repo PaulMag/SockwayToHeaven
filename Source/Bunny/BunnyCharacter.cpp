@@ -42,6 +42,8 @@ void ABunnyCharacter::BeginPlay()
 	PlayerController->bEnableMouseOverEvents = true;
 	*/
 
+	InputComponent->BindAction("Jump", IE_Pressed, this, &ABunnyCharacter::Jump);
+	InputComponent->BindAction("Jump", IE_Released, this, &ABunnyCharacter::Fall);
 	
 	InputComponent->BindAxis("MoveX", this, &ABunnyCharacter::Move_XAxis);
 	InputComponent->BindAxis("MoveY", this, &ABunnyCharacter::Move_YAxis);
@@ -59,7 +61,6 @@ void ABunnyCharacter::Tick(float DeltaTime)
 	
 }
 
-
 // Called to bind functionality to input
 void ABunnyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -69,12 +70,25 @@ void ABunnyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 void ABunnyCharacter::Move_XAxis(float AxisValue)
 {
-	CurrentVelocity.X = FMath::Clamp(AxisValue, -1.0f, 1.0f) * 100.0f;
+	CurrentVelocity.X = FMath::Clamp(AxisValue, -1.0f, 1.0f) * MovementSpeed;
 }
 
 void ABunnyCharacter::Move_YAxis(float AxisValue)
 {
-	CurrentVelocity.Y = FMath::Clamp(AxisValue, -1.0f, 1.0f) * 100.0f;
+	CurrentVelocity.Y = FMath::Clamp(AxisValue, -1.0f, 1.0f) * MovementSpeed;
+}
+
+void ABunnyCharacter::Jump()
+{
+	if (CurrentVelocity.Z == 0)
+	{
+		CurrentVelocity.Z = MovementSpeed;
+	}
+}
+
+void ABunnyCharacter::Fall()
+{
+	CurrentVelocity.Z = -(MovementSpeed / 9.8);
 }
 
 void ABunnyCharacter::RotateZ(float AxisValue)
@@ -105,3 +119,4 @@ void ABunnyCharacter::Movement(float DeltaTime)
 	SetActorRotation(TempRotation);
 
 }
+

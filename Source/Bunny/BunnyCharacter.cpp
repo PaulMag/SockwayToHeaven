@@ -20,10 +20,8 @@ ABunnyCharacter::ABunnyCharacter()
 
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 
-	OurVisibleComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("OurVisibleComponent"));
+	OurVisibleComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("OurVisibleComponent"));
 
-	OurVisibleComponent->SetupAttachment(RootComponent);
-	
 }
 
 // Called when the game starts or when spawned
@@ -33,9 +31,6 @@ void ABunnyCharacter::BeginPlay()
 
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 	
-	PlayerController->SetViewTarget(IsometricCamera);
-	
-
 	/*
 	PlayerController->bShowMouseCursor = true;
 	PlayerController->bEnableClickEvents = true;
@@ -43,13 +38,11 @@ void ABunnyCharacter::BeginPlay()
 	*/
 
 	InputComponent->BindAction("Jump", IE_Pressed, this, &ABunnyCharacter::Jump);
-	InputComponent->BindAction("Jump", IE_Released, this, &ABunnyCharacter::Fall);
+	InputComponent->BindAction("Jump", IE_Released, this, &ABunnyCharacter::StopJumping);
 	
 	InputComponent->BindAxis("MoveX", this, &ABunnyCharacter::Move_XAxis);
 	InputComponent->BindAxis("MoveY", this, &ABunnyCharacter::Move_YAxis);
-	InputComponent->BindAxis("RotateZ", this, &ABunnyCharacter::RotateZ);
-	
-	
+
 }
 
 // Called every frame
@@ -58,14 +51,12 @@ void ABunnyCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	
 	Movement(DeltaTime);
-	
 }
 
 // Called to bind functionality to input
 void ABunnyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
 
 void ABunnyCharacter::Move_XAxis(float AxisValue)
@@ -78,24 +69,6 @@ void ABunnyCharacter::Move_YAxis(float AxisValue)
 	CurrentVelocity.Y = FMath::Clamp(AxisValue, -1.0f, 1.0f) * MovementSpeed;
 }
 
-void ABunnyCharacter::Jump()
-{
-	if (CurrentVelocity.Z == 0)
-	{
-		CurrentVelocity.Z = MovementSpeed;
-	}
-}
-
-void ABunnyCharacter::Fall()
-{
-	CurrentVelocity.Z = -(MovementSpeed / 9.8);
-}
-
-void ABunnyCharacter::RotateZ(float AxisValue)
-{
-	CurrentRotation = FMath::Clamp(AxisValue, -1.0f, 1.0f);
-}
-
 void ABunnyCharacter::Movement(float DeltaTime)
 {
 	if (!CurrentVelocity.IsZero())
@@ -104,19 +77,17 @@ void ABunnyCharacter::Movement(float DeltaTime)
 		if (TimeAccellerating >= TimeBeforeAccelerate)
 		{
 			SpeedScale += 0.05;
-			SpeedScale > 5.0f ? SpeedScale = 4.0f : SpeedScale;
+			SpeedScale > 3.0f ? SpeedScale = 2.0f : SpeedScale;
 		}
 		FVector NewLocation = GetActorLocation() + (CurrentVelocity * SpeedScale * DeltaTime);
 		SetActorLocation(NewLocation);
 	}
 	else
 	{
-		SpeedScale = 2.5f;
+		SpeedScale = 2.0f;
 		TimeAccellerating = 0.f;
 	}
-	FRotator TempRotation = GetActorRotation();
-	TempRotation.Yaw += CurrentRotation;
-	SetActorRotation(TempRotation);
+	
 
 }
 

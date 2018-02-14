@@ -28,30 +28,24 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
 	UPROPERTY(EditAnywhere)
-		UStaticMeshComponent* OurVisibleComponent;
+		USkeletalMeshComponent* OurVisibleComponent;
 
-	UShapeComponent* CollisionCapsule = nullptr;
+	USceneComponent* CollisionCapsule = nullptr;
 
-	void Jump();
-	void Fall();
-	
 	void Move_XAxis(float AxisValue);
 	void Move_YAxis(float AxisValue);
-	void RotateZ(float AxisValue);
 	
-
 	FVector CurrentVelocity;
-	float CurrentRotation;
 	
 	UPROPERTY(EditAnywhere)
 		float SpeedScale = 1.f;
 		float TimeBeforeAccelerate = 1.f;
 		float TimeAccellerating{ 0.f };
-		float MovementSpeed = 100.0f;
+		float MovementSpeed = 140.0f;
 
-	UPROPERTY(EditAnywhere)
-		ACameraActor* IsometricCamera = nullptr;
-	
+	/*UPROPERTY(EditAnywhere)
+		ACameraActor* PlayerCamera = nullptr;
+	*/
 private:
 	void Movement(float DeltaTime);
 };

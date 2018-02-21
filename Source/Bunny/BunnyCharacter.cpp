@@ -26,10 +26,8 @@ ABunnyCharacter::ABunnyCharacter()
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
 
-	// Don't rotate when the controller rotates. Let that just affect the camera.
-	bUseControllerRotationPitch = true;
-	bUseControllerRotationYaw = true;
-	bUseControllerRotationRoll = true;
+	bCanGlide = false;		//Set this to true to test/debug gliding, set to false for actual game
+	bIsGliding = false;
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
@@ -39,19 +37,9 @@ ABunnyCharacter::ABunnyCharacter()
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
-	GetCharacterMovement()->JumpZVelocity = 600.f;
-	GetCharacterMovement()->AirControl = 1.0f;
-
-	/*
-	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
-	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 200.0f;
-	CameraBoom->bUsePawnControlRotation = true;
-
-	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
-	FollowCamera->bUsePawnControlRotation = false;
-	*/
+	GetCharacterMovement()->GravityScale = 1.0f;
+	GetCharacterMovement()->AirControl = 0.25f;
+	GetCharacterMovement()->MaxWalkSpeed = 140.0f;
 }
 
 // Called when the game starts or when spawned
@@ -89,6 +77,9 @@ void ABunnyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	//Joystick
 	PlayerInputComponent->BindAxis("LookUpRate", this, &ABunnyCharacter::LookUpAtRate);
+
+	PlayerInputComponent->BindAction("Glide", IE_Pressed, this, &ABunnyCharacter::Glide);
+	PlayerInputComponent->BindAction("Glide", IE_Released, this, &ABunnyCharacter::StopGliding);
 }
 
 void ABunnyCharacter::TurnAtRate(float Rate)
@@ -113,6 +104,7 @@ void ABunnyCharacter::MoveForward(float Value)
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		AddMovementInput(Direction, Value);
 	}
+
 }
 
 void ABunnyCharacter::MoveRight(float Value)
@@ -127,6 +119,26 @@ void ABunnyCharacter::MoveRight(float Value)
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
+	}
+}
+
+void ABunnyCharacter::Glide()
+{
+	if (bCanGlide == true)
+	{
+		bIsGliding = true;
+		GetCharacterMovement()->GravityScale = 0.5f;
+		GetCharacterMovement()->AirControl = 1.0f;
+	}
+}
+
+void ABunnyCharacter::StopGliding()
+{
+	if (bCanGlide == true)
+	{
+		GetCharacterMovement()->GravityScale = 1.0f;
+		GetCharacterMovement()->AirControl = 0.25f;
+		bIsGliding = false;
 	}
 }
 

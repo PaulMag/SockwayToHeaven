@@ -11,41 +11,49 @@ class BUNNY_API ABunnyCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class USpringArmComponent* CameraBoom;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class UCameraComponent* FollowCamera;
+
 public:
 	// Sets default values for this character's properties
 	ABunnyCharacter();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+		float BaseTurnRate;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+		float BaseLookUpRate;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	void MoveForward(float Value);
+
+	void MoveRight(float Value);
+
+	void TurnAtRate(float Rate);
+
+	void LookUpAtRate(float Rate);
+
+protected:
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	// Called to bind functionality to input
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
-	
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
+	/*
+	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+
+	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	*/
 	UPROPERTY(EditAnywhere)
 		USkeletalMeshComponent* OurVisibleComponent;
 
 	USceneComponent* CollisionCapsule = nullptr;
-
-	void Move_XAxis(float AxisValue);
-	void Move_YAxis(float AxisValue);
-	
-	FVector CurrentVelocity;
-	
-	UPROPERTY(EditAnywhere)
-		float SpeedScale = 1.f;
-		float TimeBeforeAccelerate = 1.f;
-		float TimeAccellerating{ 0.f };
-		float MovementSpeed = 140.0f;
-
-	/*UPROPERTY(EditAnywhere)
-		ACameraActor* PlayerCamera = nullptr;
-	*/
-private:
-	void Movement(float DeltaTime);
 };

@@ -77,6 +77,7 @@ void ABunnyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	check(PlayerInputComponent);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	PlayerInputComponent->BindAction("Climb", IE_Pressed, this, &ABunnyCharacter::toggleClimb);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ABunnyCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ABunnyCharacter::MoveRight);
@@ -130,3 +131,23 @@ void ABunnyCharacter::MoveRight(float Value)
 	}
 }
 
+void ABunnyCharacter::toggleClimb()
+{
+	if (!canClimb)
+	{
+		return;  // If can't climb yet return without doing anything.
+	}
+
+	bool climbableWall = true;  // TODO: Needs to check with a raytrace.
+	
+	if (!isClimbing && climbableWall)
+	{
+		isClimbing = true;
+		UE_LOG(LogTemp, Warning, TEXT("Climbing ON"));
+	}
+	else if (isClimbing)
+	{
+		isClimbing = false;
+		UE_LOG(LogTemp, Warning, TEXT("Climbing OFF"));
+	}
+}

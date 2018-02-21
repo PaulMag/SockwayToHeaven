@@ -17,6 +17,12 @@ class BUNNY_API ABunnyCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
+private:
+	bool canClimb = true;
+	bool isClimbing = false;
+	float climbSpeedRatio = 0.5;
+	void toggleClimb();
+
 public:
 	// Sets default values for this character's properties
 	ABunnyCharacter();

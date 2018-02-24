@@ -119,8 +119,9 @@ void ABunnyCharacter::MoveForward(float Value)
 
 			// get forward vector
 			const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-			UE_LOG(LogTemp, Warning, TEXT("%f %f %f"), Direction.X, Direction.Y, Direction.Z);
-			AddMovementInput(Direction, Value);
+			//UE_LOG(LogTemp, Warning, TEXT("%f %f %f"), Direction.X, Direction.Y, Direction.Z);
+			float deltaZ = GetCharacterMovement()->MaxWalkSpeed * Value * GetWorld()->DeltaTimeSeconds;
+			AddActorLocalOffset(Direction * deltaZ, true);
 		}
 	}
 }
@@ -142,8 +143,8 @@ void ABunnyCharacter::MoveRight(float Value)
 		}
 		else  // is walking
 		{
-			// add movement in that direction
-			AddMovementInput(Direction, Value);
+			float deltaY = GetCharacterMovement()->MaxWalkSpeed * Value * GetWorld()->DeltaTimeSeconds;
+			AddActorLocalOffset(Direction * deltaY, true);
 		}
 	}
 }
@@ -154,21 +155,59 @@ void ABunnyCharacter::toggleClimb()
 	{
 		return;  // If can't climb yet return without doing anything.
 	}
-
-	bool climbableWall = true;  // TODO: Needs to check with a raytrace.
+	if (isClimbing)
+	{
+		isClimbing = false;  // stop climbing
+		GetCharacterMovement()->GravityScale = 1.;
+		UE_LOG(LogTemp, Warning, TEXT("Climbing OFF"));
+		return;
+	}
 	
-	if (!isClimbing && climbableWall)
+	FVector lineTraceStart = GetActorLocation();
+	FRotator lineTraceRotation = GetActorRotation();
+	FVector lineTraceEnd = lineTraceStart + lineTraceRotation.Vector() * climbReach;
+	UE_LOG(LogTemp, Warning, TEXT("%f %f %f"), lineTraceEnd.X, lineTraceEnd.Y, lineTraceEnd.Z);
+	DrawDebugLine(
+		GetWorld(),
+		lineTraceStart,  // from
+		lineTraceEnd,    // to
+		FColor(255, 0, 128),
+		false,
+		0,
+		0,
+		10
+	);
+	FHitResult hit;
+	GetWorld()->LineTraceSingleByObjectType(
+		hit,  // output
+		lineTraceStart,
+		lineTraceEnd,
+		ECC_WorldStatic  // WorldStatic should be replaced with a specifc climbable type.
+	);
+
+	// See what we hit
+	AActor* hitActor = hit.GetActor();
+	bool climbableWall;
+	if (hitActor)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Line trace hit actor: %s\n"), *(hitActor->GetName()));
+		climbableWall = true;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Line trace miss.\n"));
+		climbableWall = false;
+	}
+
+	if (climbableWall)
 	{
 		isClimbing = true;
 		GetCharacterMovement()->GravityScale = 0.;
-		AddActorLocalOffset(FVector(0, 0, 65.0), true);  //TODO: This shouldn't be necessary, but elsewise character is not able to start climbing.
+		//AddActorLocalOffset(FVector(0, 0, 65.0), true); 
+			/* TODO: This shouldn't be necessary, but elsewise character is not able to start climbing.
+			 *      It is only necessary when the CharacterMovement component is used for movement.
+			 */
 		GetCharacterMovement()->Velocity = FVector(0, 0, 0);  // Stop any falling movement when grabbing.
 		UE_LOG(LogTemp, Warning, TEXT("Climbing ON"));
-	}
-	else if (isClimbing)
-	{
-		isClimbing = false;
-		GetCharacterMovement()->GravityScale = 1.;
-		UE_LOG(LogTemp, Warning, TEXT("Climbing OFF"));
 	}
 }

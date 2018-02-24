@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "DrawDebugHelpers.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "BunnyCharacter.generated.h"
@@ -22,6 +23,7 @@ private:
 	bool isClimbing = false;
 	float climbSpeedRatio = 0.5;
 	void toggleClimb();
+	float climbReach = 100.;
 
 public:
 	// Sets default values for this character's properties

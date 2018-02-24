@@ -106,13 +106,22 @@ void ABunnyCharacter::MoveForward(float Value)
 {
 	if ((Controller != NULL) && (Value != 0.0f))
 	{
-		// find out which way is forward
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
+		if (isClimbing)
+		{
+			float deltaZ = GetCharacterMovement()->MaxWalkSpeed * climbSpeedRatio * Value * GetWorld()->DeltaTimeSeconds;
+			AddActorLocalOffset(FVector(0, 0, deltaZ), true);
+		}
+		else  // is walking
+		{
+			// find out which way is forward
+			const FRotator Rotation = Controller->GetControlRotation();
+			const FRotator YawRotation(0, Rotation.Yaw, Value);
 
-		// get forward vector
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(Direction, Value);
+			// get forward vector
+			const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+			UE_LOG(LogTemp, Warning, TEXT("%f %f %f"), Direction.X, Direction.Y, Direction.Z);
+			AddMovementInput(Direction, Value);
+		}
 	}
 }
 
@@ -123,11 +132,19 @@ void ABunnyCharacter::MoveRight(float Value)
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
 		// get right vector 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		// add movement in that direction
-		AddMovementInput(Direction, Value);
+		
+		if (isClimbing)
+		{
+			float deltaY = GetCharacterMovement()->MaxWalkSpeed * climbSpeedRatio * Value * GetWorld()->DeltaTimeSeconds;
+			AddActorLocalOffset(Direction * deltaY, true);
+		}
+		else  // is walking
+		{
+			// add movement in that direction
+			AddMovementInput(Direction, Value);
+		}
 	}
 }
 
@@ -143,11 +160,15 @@ void ABunnyCharacter::toggleClimb()
 	if (!isClimbing && climbableWall)
 	{
 		isClimbing = true;
+		GetCharacterMovement()->GravityScale = 0.;
+		AddActorLocalOffset(FVector(0, 0, 65.0), true);  //TODO: This shouldn't be necessary, but elsewise character is not able to start climbing.
+		GetCharacterMovement()->Velocity = FVector(0, 0, 0);  // Stop any falling movement when grabbing.
 		UE_LOG(LogTemp, Warning, TEXT("Climbing ON"));
 	}
 	else if (isClimbing)
 	{
 		isClimbing = false;
+		GetCharacterMovement()->GravityScale = 1.;
 		UE_LOG(LogTemp, Warning, TEXT("Climbing OFF"));
 	}
 }

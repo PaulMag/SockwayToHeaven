@@ -24,11 +24,14 @@ private:
 	FVector lineTraceEnd;
 	FHitResult lineTraceHit;
 
-	bool canClimb = true;
-	bool isClimbing = false;
+	bool bCanClimb = true;
+	bool bIsClimbing = false;
 	float climbSpeedRatio = 0.5;
-	void toggleClimb();
 	float climbReach = 100.;
+	
+	void toggleClimb();
+	void startClimbing();
+	void stopClimbing();
 
 public:
 	// Sets default values for this character's properties

@@ -19,6 +19,11 @@ class BUNNY_API ABunnyCharacter : public ACharacter
 	class UCameraComponent* FollowCamera;
 
 private:
+	FVector lineTraceStart;
+	FRotator lineTraceRotation;
+	FVector lineTraceEnd;
+	FHitResult lineTraceHit;
+
 	bool canClimb = true;
 	bool isClimbing = false;
 	float climbSpeedRatio = 0.5;

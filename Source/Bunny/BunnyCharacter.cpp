@@ -54,6 +54,25 @@ void ABunnyCharacter::BeginPlay()
 void ABunnyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	lineTraceStart = GetActorLocation();
+	lineTraceRotation = GetActorRotation();
+	lineTraceEnd = lineTraceStart + lineTraceRotation.Vector() * climbReach;
+	UE_LOG(LogTemp, Warning, TEXT("%f %f %f"), lineTraceEnd.X, lineTraceEnd.Y, lineTraceEnd.Z);
+	DrawDebugLine(
+		GetWorld(),
+		lineTraceStart,  // from
+		lineTraceEnd,    // to
+		FColor(255, 0, 128),
+		false,
+		0, 0, 10
+	);
+	GetWorld()->LineTraceSingleByObjectType(
+		lineTraceHit,  // output
+		lineTraceStart,
+		lineTraceEnd,
+		ECC_WorldStatic  // WorldStatic should be replaced with a specifc climbable type.
+	);
 }
 
 // Called to bind functionality to input
@@ -156,30 +175,8 @@ void ABunnyCharacter::toggleClimb()
 		return;
 	}
 	
-	FVector lineTraceStart = GetActorLocation();
-	FRotator lineTraceRotation = GetActorRotation();
-	FVector lineTraceEnd = lineTraceStart + lineTraceRotation.Vector() * climbReach;
-	UE_LOG(LogTemp, Warning, TEXT("%f %f %f"), lineTraceEnd.X, lineTraceEnd.Y, lineTraceEnd.Z);
-	DrawDebugLine(
-		GetWorld(),
-		lineTraceStart,  // from
-		lineTraceEnd,    // to
-		FColor(255, 0, 128),
-		false,
-		0,
-		0,
-		10
-	);
-	FHitResult hit;
-	GetWorld()->LineTraceSingleByObjectType(
-		hit,  // output
-		lineTraceStart,
-		lineTraceEnd,
-		ECC_WorldStatic  // WorldStatic should be replaced with a specifc climbable type.
-	);
-
 	// See what we hit
-	AActor* hitActor = hit.GetActor();
+	AActor* hitActor = lineTraceHit.GetActor();
 	bool climbableWall;
 	if (hitActor)
 	{

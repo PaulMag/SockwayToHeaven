@@ -99,12 +99,21 @@ void ABunnyCharacter::Tick(float DeltaTime)
 			);
 			if (lineTraceHit.GetActor())  // Lower part of character still on wall => vault
 			{
-				vault();
+				startVaulting();
 			}
 			else
 			{
-				stopClimbing();
+				stopClimbing();  // else, just fall down
 			}
+		}
+	}
+	else if (bIsVaulting)
+	{
+		AddActorLocalOffset(FVector(1.5*climbDistance, 0, vaultHeight) * DeltaTime / vaultDuration, false);
+		vaultTimeRemaining -= DeltaTime;
+		if (vaultTimeRemaining <= 0)
+		{
+			stopVaulting();
 		}
 	}
 }
@@ -155,6 +164,10 @@ void ABunnyCharacter::MoveForward(float Value)
 			float deltaZ = GetCharacterMovement()->MaxWalkSpeed * climbSpeedRatio * Value * GetWorld()->DeltaTimeSeconds;
 			AddActorWorldOffset(FVector(0, 0, deltaZ), true);
 		}
+		else if (bIsVaulting)
+		{
+			// do nothing
+		}
 		else  // is walking
 		{
 			float deltaX = GetCharacterMovement()->MaxWalkSpeed * Value * GetWorld()->DeltaTimeSeconds;
@@ -173,6 +186,10 @@ void ABunnyCharacter::MoveRight(float Value)
 		{
 			float deltaY = GetCharacterMovement()->MaxWalkSpeed * climbSpeedRatio * Value * GetWorld()->DeltaTimeSeconds;
 			AddActorLocalOffset(FVector(0, deltaY, 0), true);
+		}
+		else if (bIsVaulting)
+		{
+			// do nothing
 		}
 		else  // is walking
 		{
@@ -223,11 +240,19 @@ void ABunnyCharacter::stopClimbing()
 	UE_LOG(LogTemp, Warning, TEXT("Climbing OFF"));
 }
 
-void ABunnyCharacter::vault()
+void ABunnyCharacter::startVaulting()
 /* Jump up and forwards to get on top of the wall. */
 {
-	AddActorLocalOffset(FVector(2*climbDistance, 0, vaultHeight), false);
+	SetActorEnableCollision(false);
+	bIsVaulting = true;
+	vaultTimeRemaining = vaultDuration;
 	stopClimbing();
+}
+
+void ABunnyCharacter::stopVaulting()
+{
+	bIsVaulting = false;
+	SetActorEnableCollision(true);
 }
 
 void ABunnyCharacter::Glide()

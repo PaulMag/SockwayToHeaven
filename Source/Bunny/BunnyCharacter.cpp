@@ -31,8 +31,6 @@ ABunnyCharacter::ABunnyCharacter()
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
-	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
-
 	OurVisibleComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("OurVisibleComponent"));
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -170,8 +168,7 @@ void ABunnyCharacter::MoveForward(float Value)
 		}
 		else  // is walking
 		{
-			float deltaX = GetCharacterMovement()->MaxWalkSpeed * Value * GetWorld()->DeltaTimeSeconds;
-			AddActorLocalOffset(FVector(deltaX, 0, 0), true);  // TODO: change to WorldOffset when static camera
+			AddMovementInput(Controller->GetActorForwardVector(), Value);
 		}
 	}
 
@@ -193,8 +190,7 @@ void ABunnyCharacter::MoveRight(float Value)
 		}
 		else  // is walking
 		{
-			float deltaY = GetCharacterMovement()->MaxWalkSpeed * Value * GetWorld()->DeltaTimeSeconds;
-			AddActorLocalOffset(FVector(0, deltaY, 0), true);  // TODO: change to WorldOffset when static camera
+			AddMovementInput(Controller->GetActorRightVector(), Value);
 		}
 	}
 }
@@ -225,10 +221,11 @@ void ABunnyCharacter::startClimbing()
 {
 	bIsClimbing = true;
 	GetCharacterMovement()->GravityScale = 0.;
-	//AddActorLocalOffset(FVector(0, 0, 65.0), true); 
+	AddActorLocalOffset(FVector(0, 0, 65.0), true); 
 	/* TODO: This shouldn't be necessary, but elsewise character is not able to start climbing.
-	*      It is only necessary when the CharacterMovement component is used for movement.
-	*/
+	 *       It is only necessary when the CharacterMovementComponent is used for movement.
+	 *       Would probably be fixed if we implement "flying" when climbing.
+	 */
 	GetCharacterMovement()->Velocity = FVector(0, 0, 0);  // Stop any falling movement when grabbing.
 	UE_LOG(LogTemp, Warning, TEXT("Climbing ON"));
 }

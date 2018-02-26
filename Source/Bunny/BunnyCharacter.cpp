@@ -60,7 +60,7 @@ void ABunnyCharacter::Tick(float DeltaTime)
 	lineTraceRotation = GetActorRotation();
 	lineTraceEnd = lineTraceStart + lineTraceRotation.Vector() * climbReach;
 	UE_LOG(LogTemp, Warning, TEXT("%f %f %f"), lineTraceEnd.X, lineTraceEnd.Y, lineTraceEnd.Z);
-	DrawDebugLine(
+	DrawDebugLine(  // Show facing direction of character
 		GetWorld(),
 		lineTraceStart,  // from
 		lineTraceEnd,    // to
@@ -76,9 +76,21 @@ void ABunnyCharacter::Tick(float DeltaTime)
 	);
 
 	// Stop climbing if there is no longer a wall
-	if (bIsClimbing && !lineTraceHit.GetActor())
+	if (bIsClimbing)
 	{
-		stopClimbing();
+		if (lineTraceHit.GetActor())  // Still on the wall.
+		{
+			// Move and rotate the character in case the wall curved
+			FVector impactNormalXY = lineTraceHit.ImpactNormal;
+			impactNormalXY.Z = 0;  // ignore Z-component of impact normal
+			SetActorLocation(lineTraceHit.ImpactPoint + impactNormalXY * climbDistance, true);
+			FRotator newDirection = (-lineTraceHit.ImpactNormal).ToOrientationRotator();
+			GetController()->SetControlRotation(newDirection);
+		}
+		else  // No longer on the wall.
+		{
+			stopClimbing();
+		}
 	}
 }
 
@@ -126,19 +138,12 @@ void ABunnyCharacter::MoveForward(float Value)
 		if (bIsClimbing)
 		{
 			float deltaZ = GetCharacterMovement()->MaxWalkSpeed * climbSpeedRatio * Value * GetWorld()->DeltaTimeSeconds;
-			AddActorLocalOffset(FVector(0, 0, deltaZ), true);
+			AddActorWorldOffset(FVector(0, 0, deltaZ), true);
 		}
 		else  // is walking
 		{
-			// find out which way is forward
-			const FRotator Rotation = Controller->GetControlRotation();
-			const FRotator YawRotation(0, Rotation.Yaw, Value);
-
-			// get forward vector
-			const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-			//UE_LOG(LogTemp, Warning, TEXT("%f %f %f"), Direction.X, Direction.Y, Direction.Z);
-			float deltaZ = GetCharacterMovement()->MaxWalkSpeed * Value * GetWorld()->DeltaTimeSeconds;
-			AddActorLocalOffset(Direction * deltaZ, true);
+			float deltaX = GetCharacterMovement()->MaxWalkSpeed * Value * GetWorld()->DeltaTimeSeconds;
+			AddActorLocalOffset(FVector(deltaX, 0, 0), true);  // TODO: change to WorldOffset when static camera
 		}
 	}
 
@@ -149,20 +154,15 @@ void ABunnyCharacter::MoveRight(float Value)
 	if ((Controller != NULL) && (Value != 0.0f))
 	{
 		// find out which way is right
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-		// get right vector 
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		
 		if (bIsClimbing)
 		{
 			float deltaY = GetCharacterMovement()->MaxWalkSpeed * climbSpeedRatio * Value * GetWorld()->DeltaTimeSeconds;
-			AddActorLocalOffset(Direction * deltaY, true);
+			AddActorLocalOffset(FVector(0, deltaY, 0), true);
 		}
 		else  // is walking
 		{
 			float deltaY = GetCharacterMovement()->MaxWalkSpeed * Value * GetWorld()->DeltaTimeSeconds;
-			AddActorLocalOffset(Direction * deltaY, true);
+			AddActorLocalOffset(FVector(0, deltaY, 0), true);  // TODO: change to WorldOffset when static camera
 		}
 	}
 }

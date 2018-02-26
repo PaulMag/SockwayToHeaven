@@ -72,7 +72,7 @@ void ABunnyCharacter::Tick(float DeltaTime)
 		lineTraceHit,  // output
 		lineTraceStart,
 		lineTraceEnd,
-		ECC_WorldStatic  // WorldStatic should be replaced with a specifc climbable type.
+		ECC_WorldStatic  // TODO: WorldStatic should be replaced with a specifc climbable type.
 	);
 
 	// Stop climbing if there is no longer a wall
@@ -89,7 +89,22 @@ void ABunnyCharacter::Tick(float DeltaTime)
 		}
 		else  // No longer on the wall.
 		{
-			stopClimbing();
+			lineTraceStart.Z -= vaultHeight;
+			lineTraceEnd.Z -= vaultHeight;
+			GetWorld()->LineTraceSingleByObjectType(
+				lineTraceHit,
+				lineTraceStart,
+				lineTraceEnd,
+				ECC_WorldStatic  // WorldStatic should be replaced with a specifc climbable type.
+			);
+			if (lineTraceHit.GetActor())  // Lower part of character still on wall => vault
+			{
+				vault();
+			}
+			else
+			{
+				stopClimbing();
+			}
 		}
 	}
 }
@@ -206,6 +221,13 @@ void ABunnyCharacter::stopClimbing()
 	bIsClimbing = false;  // stop climbing
 	GetCharacterMovement()->GravityScale = 1.;
 	UE_LOG(LogTemp, Warning, TEXT("Climbing OFF"));
+}
+
+void ABunnyCharacter::vault()
+/* Jump up and forwards to get on top of the wall. */
+{
+	AddActorLocalOffset(FVector(2*climbDistance, 0, vaultHeight), false);
+	stopClimbing();
 }
 
 void ABunnyCharacter::Glide()

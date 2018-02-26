@@ -29,10 +29,12 @@ private:
 	float climbSpeedRatio = 0.5;
 	float climbReach = 100.;  // Max distance to wall to start climbing
 	float climbDistance = 30.;  // Distance from wall while climbing.
+	float vaultHeight = 30;
 	
 	void toggleClimb();
 	void startClimbing();
 	void stopClimbing();
+	void vault();
 
 public:
 	// Sets default values for this character's properties

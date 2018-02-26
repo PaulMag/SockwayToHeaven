@@ -244,12 +244,14 @@ void ABunnyCharacter::startVaulting()
 	bIsVaulting = true;
 	vaultTimeRemaining = vaultDuration;
 	stopClimbing();
+	GetCharacterMovement()->GravityScale = 0;
 }
 
 void ABunnyCharacter::stopVaulting()
 {
 	bIsVaulting = false;
 	SetActorEnableCollision(true);
+	GetCharacterMovement()->GravityScale = 1;
 }
 
 void ABunnyCharacter::Glide()

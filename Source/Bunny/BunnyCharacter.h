@@ -30,7 +30,7 @@ private:
 	float climbReach = 100.;  // Max distance to wall to start climbing
 	float climbDistance = 30.;  // Distance from wall while climbing.
 	bool bIsVaulting = false;
-	float vaultHeight = 50;
+	float vaultHeight = 30;
 	float vaultDuration = 0.5;  // How many seconds the vault movement takes
 	float vaultTimeRemaining;  // Where in the vault movement the character is
 	

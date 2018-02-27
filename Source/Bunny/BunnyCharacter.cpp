@@ -22,7 +22,7 @@ ABunnyCharacter::ABunnyCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	GetCapsuleComponent()->InitCapsuleSize(24.f, 24.0f);
-	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ABunnyCharacter::BeginOverlap);
+	//GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ABunnyCharacter::BeginOverlap);
 
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
@@ -200,6 +200,7 @@ void ABunnyCharacter::MoveRight(float Value)
 	}
 }
 
+/*
 void ABunnyCharacter::BeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	AActor* OtherActor,
 	UPrimitiveComponent* OtherComp,
@@ -216,7 +217,7 @@ void ABunnyCharacter::BeginOverlap(UPrimitiveComponent* OverlappedComponent,
 		bCanGlide = true;
 	}
 }
-
+*/
 void ABunnyCharacter::toggleClimb()
 {
 	if (!bCanClimb)

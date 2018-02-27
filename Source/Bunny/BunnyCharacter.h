@@ -38,6 +38,7 @@ private:
 	void startVaulting();
 	void stopVaulting();
 
+	/*
 	UFUNCTION()
 		void BeginOverlap(UPrimitiveComponent* OverlappedComponent,
 		AActor* OtherActor,
@@ -45,6 +46,7 @@ private:
 		int32 OtherBodyIndex,
 		bool bFromSweep,
 		const FHitResult &SweepResult);
+		*/
 
 public:
 	// Sets default values for this character's properties

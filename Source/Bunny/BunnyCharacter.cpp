@@ -224,12 +224,7 @@ void ABunnyCharacter::toggleClimb()
 void ABunnyCharacter::startClimbing()
 {
 	bIsClimbing = true;
-	GetCharacterMovement()->GravityScale = 0.;
-	AddActorLocalOffset(FVector(0, 0, 65.0), true); 
-	/* TODO: This shouldn't be necessary, but elsewise character is not able to start climbing.
-	 *       It is only necessary when the CharacterMovementComponent is used for movement.
-	 *       Would probably be fixed if we implement "flying" when climbing.
-	 */
+	GetCharacterMovement()->MovementMode = MOVE_Flying;
 	GetCharacterMovement()->Velocity = FVector(0, 0, 0);  // Stop any falling movement when grabbing.
 	UE_LOG(LogTemp, Warning, TEXT("Climbing ON"));
 }
@@ -237,25 +232,29 @@ void ABunnyCharacter::startClimbing()
 void ABunnyCharacter::stopClimbing()
 {
 	bIsClimbing = false;  // stop climbing
-	GetCharacterMovement()->GravityScale = 1.;
+	GetCharacterMovement()->MovementMode = MOVE_Walking;
 	UE_LOG(LogTemp, Warning, TEXT("Climbing OFF"));
 }
 
 void ABunnyCharacter::startVaulting()
-/* Jump up and forwards to get on top of the wall. */
+/* Jump up and forwards to get on top of the wall.
+ * The actual movement happens in Tick while bIsVaulting is true.
+ */
 {
+	stopClimbing();
 	SetActorEnableCollision(false);
 	bIsVaulting = true;
 	vaultTimeRemaining = vaultDuration;
-	stopClimbing();
-	GetCharacterMovement()->GravityScale = 0;
+	GetCharacterMovement()->MovementMode = MOVE_Flying;
+	UE_LOG(LogTemp, Warning, TEXT("Vaulting ON"));
 }
 
 void ABunnyCharacter::stopVaulting()
 {
 	bIsVaulting = false;
 	SetActorEnableCollision(true);
-	GetCharacterMovement()->GravityScale = 1;
+	GetCharacterMovement()->MovementMode = MOVE_Walking;
+	UE_LOG(LogTemp, Warning, TEXT("Vaulting OFF"));
 }
 
 void ABunnyCharacter::Glide()

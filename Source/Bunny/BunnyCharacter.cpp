@@ -57,7 +57,6 @@ void ABunnyCharacter::Tick(float DeltaTime)
 	lineTraceStart = GetActorLocation();
 	lineTraceRotation = GetActorRotation();
 	lineTraceEnd = lineTraceStart + lineTraceRotation.Vector() * climbReach;
-	UE_LOG(LogTemp, Warning, TEXT("%f %f %f"), lineTraceEnd.X, lineTraceEnd.Y, lineTraceEnd.Z);
 	DrawDebugLine(  // Show facing direction of character
 		GetWorld(),
 		lineTraceStart,  // from
@@ -169,9 +168,11 @@ void ABunnyCharacter::MoveForward(float Value)
 		else  // is walking
 		{
 			AddMovementInput(FVector(1, 0, 0), Value);
+			FRotator newDirection = FRotator(0, 0, 0);
+			newDirection.Yaw = GetCharacterMovement()->Velocity.ToOrientationRotator().Yaw;
+			GetController()->SetControlRotation(newDirection);
 		}
 	}
-
 }
 
 void ABunnyCharacter::MoveRight(float Value)
@@ -191,6 +192,9 @@ void ABunnyCharacter::MoveRight(float Value)
 		else  // is walking
 		{
 			AddMovementInput(FVector(0, 1, 0), Value);
+			FRotator newDirection = FRotator(0, 0, 0);
+			newDirection.Yaw = GetCharacterMovement()->Velocity.ToOrientationRotator().Yaw;
+			GetController()->SetControlRotation(newDirection);
 		}
 	}
 }

@@ -24,8 +24,6 @@ private:
 	FVector lineTraceEnd;
 	FHitResult lineTraceHit;
 
-	bool bCanClimb = true;
-	bool bIsClimbing = false;
 	float climbSpeedRatio = 0.5;
 	float climbReach = 100.;  // Max distance to wall to start climbing
 	float climbDistance = 30.;  // Distance from wall while climbing.
@@ -40,6 +38,14 @@ private:
 	void startVaulting();
 	void stopVaulting();
 
+	UFUNCTION()
+		void BeginOverlap(UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult &SweepResult);
+
 public:
 	// Sets default values for this character's properties
 	ABunnyCharacter();
@@ -50,11 +56,18 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 		float BaseLookUpRate;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Variables)
 		bool bCanGlide;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
 		bool bIsGliding;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Variables)
+		bool bCanClimb = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
+		bool bIsClimbing = false;
+
 
 protected:
 	// Called when the game starts or when spawned

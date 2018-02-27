@@ -22,12 +22,10 @@ ABunnyCharacter::ABunnyCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	GetCapsuleComponent()->InitCapsuleSize(24.f, 24.0f);
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ABunnyCharacter::BeginOverlap);
 
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
-
-	bCanGlide = false;		//Set this to true to test/debug gliding, set to false for actual game
-	bIsGliding = false;
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
@@ -38,6 +36,9 @@ ABunnyCharacter::ABunnyCharacter()
 	GetCharacterMovement()->GravityScale = 1.0f;
 	GetCharacterMovement()->AirControl = 0.25f;
 	GetCharacterMovement()->MaxWalkSpeed = 140.0f;
+	GetCharacterMovement()->JumpZVelocity = 280.0f;
+	GetCharacterMovement()->MaxAcceleration = 56.0f;
+	GetCharacterMovement()->BrakingDecelerationWalking = 56.0f;
 }
 
 // Called when the game starts or when spawned
@@ -195,6 +196,22 @@ void ABunnyCharacter::MoveRight(float Value)
 	}
 }
 
+void ABunnyCharacter::BeginOverlap(UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex,
+	bool bFromSweep,
+	const FHitResult &SweepResult)
+{
+	if (bCanClimb == false)
+	{
+		bCanClimb = true;
+	}
+	else if ((bCanClimb == true) && (bCanGlide == false))
+	{
+		bCanGlide = true;
+	}
+}
 
 void ABunnyCharacter::toggleClimb()
 {

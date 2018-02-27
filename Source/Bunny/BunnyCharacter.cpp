@@ -168,7 +168,7 @@ void ABunnyCharacter::MoveForward(float Value)
 		}
 		else  // is walking
 		{
-			AddMovementInput(Controller->GetActorForwardVector(), Value);
+			AddMovementInput(FVector(1, 0, 0), Value);
 		}
 	}
 
@@ -190,7 +190,7 @@ void ABunnyCharacter::MoveRight(float Value)
 		}
 		else  // is walking
 		{
-			AddMovementInput(Controller->GetActorRightVector(), Value);
+			AddMovementInput(FVector(0, 1, 0), Value);
 		}
 	}
 }

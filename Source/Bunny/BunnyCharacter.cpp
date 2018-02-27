@@ -70,7 +70,7 @@ void ABunnyCharacter::Tick(float DeltaTime)
 		lineTraceHit,  // output
 		lineTraceStart,
 		lineTraceEnd,
-		ECC_WorldStatic  // TODO: WorldStatic should be replaced with a specifc climbable type.
+		ECC_GameTraceChannel1
 	);
 
 	// Stop climbing if there is no longer a wall
@@ -93,7 +93,7 @@ void ABunnyCharacter::Tick(float DeltaTime)
 				lineTraceHit,
 				lineTraceStart,
 				lineTraceEnd,
-				ECC_WorldStatic  // WorldStatic should be replaced with a specifc climbable type.
+				ECC_GameTraceChannel1
 			);
 			if (lineTraceHit.GetActor())  // Lower part of character still on wall => vault
 			{

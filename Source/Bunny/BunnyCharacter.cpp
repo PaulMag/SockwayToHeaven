@@ -24,21 +24,18 @@ ABunnyCharacter::ABunnyCharacter()
 	GetCapsuleComponent()->InitCapsuleSize(24.f, 24.0f);
 	//GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ABunnyCharacter::BeginOverlap);
 
-	BaseTurnRate = 45.f;
-	BaseLookUpRate = 45.f;
-
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
 	OurVisibleComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("OurVisibleComponent"));
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
-	GetCharacterMovement()->GravityScale = 1.0f;
-	GetCharacterMovement()->AirControl = 0.25f;
-	GetCharacterMovement()->MaxWalkSpeed = 140.0f;
-	GetCharacterMovement()->JumpZVelocity = 280.0f;
-	GetCharacterMovement()->MaxAcceleration = 56.0f;
-	GetCharacterMovement()->BrakingDecelerationWalking = 56.0f;
+	GetCharacterMovement()->GravityScale = DefaultGravityScale;
+	GetCharacterMovement()->AirControl = DefaultAirControl;
+	GetCharacterMovement()->MaxWalkSpeed = DefaultWalkSpeed;
+	GetCharacterMovement()->JumpZVelocity = DefaultJumpSpeed;
+	GetCharacterMovement()->MaxAcceleration = DefaultAcceleration;
+	GetCharacterMovement()->BrakingDecelerationWalking = DefaultDecelaration;
 }
 
 // Called when the game starts or when spawned
@@ -112,6 +109,18 @@ void ABunnyCharacter::Tick(float DeltaTime)
 		if (vaultTimeRemaining <= 0)
 		{
 			stopVaulting();
+		}
+	}
+
+	if (bIsGliding == true)
+	{
+		if (GetCharacterMovement()->Velocity.Z < 0) //Only glide if falling
+		{
+			Glide();
+		}
+		else if (GetCharacterMovement()->Velocity.Z >= 0)
+		{
+			StopGliding();
 		}
 	}
 }
@@ -273,9 +282,12 @@ void ABunnyCharacter::Glide()
 {
 	if (bCanGlide == true)
 	{
-		bIsGliding = true;
-		GetCharacterMovement()->GravityScale = 0.5f;
-		GetCharacterMovement()->AirControl = 1.0f;
+		if (bIsGliding != true)
+		{
+			bIsGliding = true;
+		}
+		GetCharacterMovement()->GravityScale = GlideGravityScale;
+		GetCharacterMovement()->AirControl = GlideAirControl;
 	}
 }
 
@@ -283,8 +295,11 @@ void ABunnyCharacter::StopGliding()
 {
 	if (bCanGlide == true)
 	{
-		GetCharacterMovement()->GravityScale = 1.0f;
-		GetCharacterMovement()->AirControl = 0.25f;
-		bIsGliding = false;
+		if (bIsGliding == true)
+		{
+			bIsGliding = false;
+		}
+		GetCharacterMovement()->GravityScale = DefaultGravityScale;
+		GetCharacterMovement()->AirControl = DefaultAirControl;
 	}
 }

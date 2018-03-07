@@ -64,7 +64,7 @@ void ABunnyCharacter::Tick(float DeltaTime)
 		lineTraceEnd,    // to
 		FColor(255, 0, 128),
 		false,
-		0, 0, 10
+		0, 0, 2
 	);
 	GetWorld()->LineTraceSingleByObjectType(
 		lineTraceHit,  // output
@@ -83,7 +83,7 @@ void ABunnyCharacter::Tick(float DeltaTime)
 			impactNormalXY.Z = 0;  // ignore Z-component of impact normal
 			SetActorLocation(lineTraceHit.ImpactPoint + impactNormalXY * climbDistance, true);
 			FRotator newDirection = (-lineTraceHit.ImpactNormal).ToOrientationRotator();
-			GetController()->SetControlRotation(newDirection);
+			SetActorRotation(newDirection);
 		}
 		else  // No longer on the wall.
 		{
@@ -169,9 +169,6 @@ void ABunnyCharacter::MoveForward(float Value)
 		else  // is walking
 		{
 			AddMovementInput(FVector(1, 0, 0), Value);
-			FRotator newDirection = FRotator(0, 0, 0);
-			newDirection.Yaw = GetCharacterMovement()->Velocity.ToOrientationRotator().Yaw;
-			GetController()->SetControlRotation(newDirection);
 		}
 	}
 }
@@ -193,9 +190,6 @@ void ABunnyCharacter::MoveRight(float Value)
 		else  // is walking
 		{
 			AddMovementInput(FVector(0, 1, 0), Value);
-			FRotator newDirection = FRotator(0, 0, 0);
-			newDirection.Yaw = GetCharacterMovement()->Velocity.ToOrientationRotator().Yaw;
-			GetController()->SetControlRotation(newDirection);
 		}
 	}
 }

@@ -25,7 +25,7 @@ private:
 	FHitResult lineTraceHit;
 
 	float climbSpeedRatio = 0.5;
-	float climbReach = 100.;  // Max distance to wall to start climbing
+	float climbReach = 50.;  // Max distance to wall to start climbing
 	float climbDistance = 30.;  // Distance from wall while climbing.
 	bool bIsVaulting = false;
 	float vaultHeight = 30;

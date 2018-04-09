@@ -93,10 +93,10 @@ protected:
 		float DefaultJumpSpeed = 280.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
-		float DefaultAcceleration = 56.0f;
+		float DefaultAcceleration = 140.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
-		float DefaultDecelaration = 56.0f;
+		float DefaultDecelaration = 0.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
 		bool bIsGliding = false;

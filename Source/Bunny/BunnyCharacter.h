@@ -52,25 +52,6 @@ public:
 	// Sets default values for this character's properties
 	ABunnyCharacter();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
-		float BaseTurnRate;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
-		float BaseLookUpRate;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Variables)
-		bool bCanGlide;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
-		bool bIsGliding;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Variables)
-		bool bCanClimb = false;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
-		bool bIsClimbing = false;
-
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -86,6 +67,48 @@ protected:
 	void Glide();
 
 	void StopGliding();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+		float BaseTurnRate = 45.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+		float BaseLookUpRate = 45.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+		float DefaultGravityScale = 1.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+		float GlideGravityScale = 0.25f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+		float DefaultAirControl = 0.25f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+		float GlideAirControl = 1.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+		float DefaultWalkSpeed = 140.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+		float DefaultJumpSpeed = 280.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+		float DefaultAcceleration = 140.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+		float DefaultDecelaration = 0.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
+		bool bIsGliding = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
+		bool bIsClimbing = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Variables)
+		bool bCanGlide = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Variables)
+		bool bCanClimb = false;
 
 protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

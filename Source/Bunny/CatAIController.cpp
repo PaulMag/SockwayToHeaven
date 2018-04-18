@@ -5,12 +5,6 @@
 
 ACatAIController::ACatAIController()
 {
-	// Setup the perception component
-	perceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception Component"));
-	sightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
-	perceptionComponent->ConfigureSense(*sightConfig);
-	perceptionComponent->SetDominantSense(sightConfig->GetSenseImplementation());
-	//perceptionComponent->OnPerceptionUpdated.AddDynamic(this, &AAIControllerUnit::SenseStuff);
 }
 
 void ACatAIController::BeginPlay()

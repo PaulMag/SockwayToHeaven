@@ -2,11 +2,12 @@
 
 #pragma once
 
+#include "BunnyCharacter.h"
+#include "DrawDebugHelpers.h"
+
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "EnemyCat.generated.h"
-
-class UPawnSensingComponent;
 
 
 UCLASS()
@@ -22,16 +23,15 @@ protected:
 	float alertMax= 3.;
 	float alertDecay = 0.1;  // How much alertLevel decreses per second
 
-
+	ABunnyCharacter* playerPawn;
+	FVector visionTraceStart;
+	FVector visionTraceEnd;
+	FVector visionTraceNormal;
+	FHitResult visionTraceHit;
 
 	virtual void BeginPlay() override;
+	bool checkVision();
 	
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	UPawnSensingComponent* pawnSensingComp;
-
-	void OnPawnSeen(APawn* SeenPawn);
-	void OnNoiseHeard(APawn* NoiseInstigator, const FVector& Location, float Volume);
-
 public:	
 	AEnemyCat();
 	virtual void Tick(float DeltaTime) override;

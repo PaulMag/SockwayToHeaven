@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include "Perception/AIPerceptionComponent.h"
-#include "Perception/AISenseConfig_Sight.h"
 #include "EnemyCat.h"
 
 #include "CoreMinimal.h"
@@ -22,9 +20,6 @@ protected:
 	AEnemyCat* pawn;
 	
 	virtual void BeginPlay() override;
-	
-	UAIPerceptionComponent* perceptionComponent;
-	UAISenseConfig_Sight* sightConfig;
 
 	void OnMoveCompleted(uint32 RequestID, EPathFollowingResult::Type Result);
 

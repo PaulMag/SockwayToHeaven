@@ -9,15 +9,17 @@ AEnemyCat::AEnemyCat()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
 	pawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensingComp"));
-	pawnSensingComp->OnSeePawn.AddDynamic(this, &AEnemyCat::OnPawnSeen);
-	pawnSensingComp->OnHearNoise.AddDynamic(this, &AEnemyCat::OnNoiseHeard);
+	pawnSensingComp->bEditableWhenInherited = true;
 }
 
 // Called when the game starts or when spawned
 void AEnemyCat::BeginPlay()
 {
 	Super::BeginPlay();
+	pawnSensingComp->OnSeePawn.AddDynamic(this, &AEnemyCat::OnPawnSeen);
+	pawnSensingComp->OnHearNoise.AddDynamic(this, &AEnemyCat::OnNoiseHeard);
 }
 
 // Called every frame
@@ -36,6 +38,8 @@ void AEnemyCat::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 void AEnemyCat::OnPawnSeen(APawn * SeenPawn)
 {
 	alert += 1 * GetWorld()->DeltaTimeSeconds;
+	target = SeenPawn->GetActorLocation();
+	UE_LOG(LogTemp, Warning, TEXT("PLAYER SPOTTED"));
 }
 
 void AEnemyCat::OnNoiseHeard(APawn * NoiseInstigator, const FVector & Location, float Volume)

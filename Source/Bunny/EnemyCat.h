@@ -21,7 +21,8 @@ protected:
 	float alertSuspicious = 1.;  // threshold for becoming suspicious
 	float alertChasing = 2.;  // threshold for starting to chase
 	float alertMax= 3.;
-	float alertDecay = 0.1;  // How much alertLevel decreses per second
+	float alertIncrease = 0.75;  // How much alertLevel increases per second when seen
+	float alertDecay = 0.1;  // How much alertLevel decreses per second when not seen
 
 	ABunnyCharacter* playerPawn;
 	FVector visionTraceStart;
@@ -30,7 +31,10 @@ protected:
 	FHitResult visionTraceHit;
 
 	virtual void BeginPlay() override;
-	bool checkVision();
+	
+	void tickVision();  // enemy look for player
+	float deltaTimeVision = 0.5;
+	FTimerHandle visionTimerHandle;
 	
 public:	
 	AEnemyCat();

@@ -1,5 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "TimerManager.h"
 #include "EnemyCat.h"
 
 
@@ -12,24 +13,15 @@ void AEnemyCat::BeginPlay()
 {
 	Super::BeginPlay();
 	playerPawn = Cast<ABunnyCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	GetWorldTimerManager().SetTimer(visionTimerHandle, this, &AEnemyCat::tickVision, deltaTimeVision, true);
 }
 
 void AEnemyCat::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	if (checkVision())
-	{
-		alert += 0.5 * DeltaTime;
-	}
-	else
-	{
-		alert -= alertDecay * DeltaTime;
-	}
-	UE_LOG(LogTemp, Warning, TEXT("Alert level: %f"), alert);
 }
 
-bool AEnemyCat::checkVision()
+void AEnemyCat::tickVision()
 	/* Make linetrace to check if player in sight */
 {
 	visionTraceStart = GetActorLocation();
@@ -37,7 +29,6 @@ bool AEnemyCat::checkVision()
 	visionTraceNormal = (visionTraceEnd - visionTraceStart);
 	visionTraceNormal /= (visionTraceEnd - visionTraceStart).Size();
 	visionTraceStart += visionTraceNormal * 30;  // buffer to net hit self with trace
-	
 	float angle = acos( visionTraceNormal.DotProduct(visionTraceNormal, GetActorForwardVector()) / (visionTraceNormal.Size() * GetActorForwardVector().Size()) ) / PI * 180;
 	
 	DrawDebugLine(
@@ -59,18 +50,20 @@ bool AEnemyCat::checkVision()
 	{
 		if (visionTraceHit.GetActor() == playerPawn && angle <= 75)
 		{
+			alert += alertIncrease * deltaTimeVision;
 			UE_LOG(LogTemp, Warning, TEXT("I SEE YOU, %s!, angle=%f"), *visionTraceHit.GetActor()->GetName(), angle);
-			return true;
 		}
 		else
 		{
+			alert -= alertDecay * deltaTimeVision;
 			UE_LOG(LogTemp, Warning, TEXT("I don't see you, %s, angle=%f"), *visionTraceHit.GetActor()->GetName(), angle);
 		}
 	}
 	else {
-		UE_LOG(LogTemp, Warning, TEXT("Not hitting anything, angle=%f"), angle);
+		// visionTrace should always hit the player pawn if nothing else is blocking
+		UE_LOG(LogTemp, Error, TEXT("Not hitting anything, angle=%f"), angle);
 	}
-	return false;
+	UE_LOG(LogTemp, Warning, TEXT("Alert level: %f"), alert);
 }
 
 // Called to bind functionality to input

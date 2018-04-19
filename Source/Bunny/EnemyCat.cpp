@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "TimerManager.h"
 #include "EnemyCat.h"
 
 
@@ -51,19 +50,19 @@ void AEnemyCat::tickVision()
 		if (visionTraceHit.GetActor() == playerPawn && angle <= 75)
 		{
 			alert += alertIncrease * deltaTimeVision;
-			UE_LOG(LogTemp, Warning, TEXT("I SEE YOU, %s!, angle=%f"), *visionTraceHit.GetActor()->GetName(), angle);
+			//UE_LOG(LogTemp, Warning, TEXT("I SEE YOU, %s!, angle=%f"), *visionTraceHit.GetActor()->GetName(), angle);
 		}
 		else
 		{
 			alert -= alertDecay * deltaTimeVision;
-			UE_LOG(LogTemp, Warning, TEXT("I don't see you, %s, angle=%f"), *visionTraceHit.GetActor()->GetName(), angle);
+			//UE_LOG(LogTemp, Warning, TEXT("I don't see you, %s, angle=%f"), *visionTraceHit.GetActor()->GetName(), angle);
 		}
 	}
 	else {
 		// visionTrace should always hit the player pawn if nothing else is blocking
-		UE_LOG(LogTemp, Error, TEXT("Not hitting anything, angle=%f"), angle);
+		//UE_LOG(LogTemp, Error, TEXT("Not hitting anything, angle=%f"), angle);
 	}
-	UE_LOG(LogTemp, Warning, TEXT("Alert level: %f"), alert);
+	//UE_LOG(LogTemp, Warning, TEXT("Alert level: %f"), alert);
 }
 
 // Called to bind functionality to input

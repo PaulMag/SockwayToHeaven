@@ -21,9 +21,12 @@ protected:
 	
 	virtual void BeginPlay() override;
 
-	void OnMoveCompleted(uint32 RequestID, EPathFollowingResult::Type Result);
+	FVector target;
+	void paceToRandomPoint();
+	FTimerHandle moveTimerHandle;
 
 public:
 	ACatAIController();
 	virtual void Tick(float DeltaTime) override;
+	void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
 };

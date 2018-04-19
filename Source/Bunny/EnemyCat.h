@@ -40,7 +40,4 @@ public:
 	AEnemyCat();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Variables)
-	FVector target;
 };

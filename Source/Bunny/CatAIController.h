@@ -2,15 +2,14 @@
 
 #pragma once
 
+#include "BunnyCharacter.h"
 #include "EnemyCat.h"
 
 #include "CoreMinimal.h"
 #include "AIController.h"
 #include "CatAIController.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class BUNNY_API ACatAIController : public AAIController
 {
@@ -21,12 +20,15 @@ protected:
 	
 	virtual void BeginPlay() override;
 
+	ABunnyCharacter* playerPawn;
 	FVector target;
-	void paceToRandomPoint();
 	FTimerHandle moveTimerHandle;
+	bool bChaseMode = false;
 
 public:
 	ACatAIController();
 	virtual void Tick(float DeltaTime) override;
+	void paceToRandomPoint();
+	void chasePlayer();
 	void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
 };

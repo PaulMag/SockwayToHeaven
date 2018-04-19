@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "EnemyCat.h"
+#include "CatAIController.h"
+#include "TimerManager.h"
 
 
 AEnemyCat::AEnemyCat()
@@ -18,6 +20,28 @@ void AEnemyCat::BeginPlay()
 void AEnemyCat::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+float AEnemyCat::getAttackReach()
+{
+	return attackReach;
+}
+
+void AEnemyCat::attackBegin()
+{
+	GetWorldTimerManager().SetTimer(attackTimerHandle, this, &AEnemyCat::attackEnd, attackTime, false);
+
+}void AEnemyCat::attackEnd()
+{
+	if ((GetActorLocation() - playerPawn->GetActorLocation()).Size() <= attackReach)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ATTACK: KILLED player"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ATTACK: missed player"));
+		controller->chasePlayer();
+	}
 }
 
 void AEnemyCat::tickVision()
@@ -60,9 +84,19 @@ void AEnemyCat::tickVision()
 	}
 	else {
 		// visionTrace should always hit the player pawn if nothing else is blocking
-		//UE_LOG(LogTemp, Error, TEXT("Not hitting anything, angle=%f"), angle);
+		UE_LOG(LogTemp, Error, TEXT("Not hitting anything, angle=%f"), angle);
 	}
-	//UE_LOG(LogTemp, Warning, TEXT("Alert level: %f"), alert);
+	UE_LOG(LogTemp, Warning, TEXT("Alert level: %f"), alert);
+	if (!bChaseMode && alert >= alertChasing)
+	{
+		bChaseMode = true;
+		controller->chasePlayer();
+	}
+	else if (bChaseMode && alert < alertChasing)
+	{
+		bChaseMode = false;
+		controller->paceToRandomPoint();
+	}
 }
 
 // Called to bind functionality to input

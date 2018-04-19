@@ -2,6 +2,7 @@
 
 #pragma once
 
+class ACatAIController;  // Forward declaration to avoid infinite recursion
 #include "BunnyCharacter.h"
 #include "DrawDebugHelpers.h"
 
@@ -23,6 +24,7 @@ protected:
 	float alertMax= 3.;
 	float alertIncrease = 0.75;  // How much alertLevel increases per second when seen
 	float alertDecay = 0.1;  // How much alertLevel decreses per second when not seen
+	bool bChaseMode = false;
 
 	ABunnyCharacter* playerPawn;
 	FVector visionTraceStart;
@@ -36,8 +38,16 @@ protected:
 	float deltaTimeVision = 0.5;
 	FTimerHandle visionTimerHandle;
 	
+	float attackReach = 40.;
+	float attackTime = 1.5;  // time it takes to complete attack from attack initiation
+	FTimerHandle attackTimerHandle;
+	
 public:	
+	ACatAIController* controller;  // is set by the controller itself
 	AEnemyCat();
 	virtual void Tick(float DeltaTime) override;
+	float getAttackReach();
+	void attackBegin();
+	void attackEnd();
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 };

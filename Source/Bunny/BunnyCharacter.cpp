@@ -47,6 +47,49 @@ void ABunnyCharacter::BeginPlay()
 
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 
+	UWorld* TheWorld = GetWorld();
+	FString CurrentLevel = TheWorld->GetMapName();
+
+		if (CurrentLevel == "BunnyTutorialMap")
+		{
+			bool bCanGlide = false;
+			bool bCanClimb = false;
+			bool bCanScare = false;
+			UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
+			if (BGI)
+			{
+				BGI->bCanClimb = false;
+				BGI->bCanGlide = false;
+				BGI->bCanScare = false;
+			}
+		}
+		else if (CurrentLevel == "Level1")
+		{
+			bool bCanGlide = true;
+			bool bCanClimb = false;
+			bool bCanScare = false;
+			UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
+			if (BGI)
+			{
+				BGI->bCanClimb = true;
+				BGI->bCanGlide = false;
+				BGI->bCanScare = false;
+			}
+		}
+		else if (CurrentLevel == "Level2")
+		{
+			bool bCanGlide = true;
+			bool bCanClimb = true;
+			bool bCanScare = true;
+			UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
+			if (BGI)
+			{
+				BGI->bCanClimb = true;
+				BGI->bCanGlide = true;
+				BGI->bCanScare = true;
+			}
+		}
+
 	UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
 	if (BGI)
 	{
@@ -154,6 +197,9 @@ void ABunnyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	PlayerInputComponent->BindAction("Climb", IE_Pressed, this, &ABunnyCharacter::toggleClimb);
+	PlayerInputComponent->BindAction("Glide", IE_Pressed, this, &ABunnyCharacter::Glide);
+	PlayerInputComponent->BindAction("Glide", IE_Released, this, &ABunnyCharacter::StopGliding);
+	PlayerInputComponent->BindAction("Menu", IE_Pressed, this, &ABunnyCharacter::Menu);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ABunnyCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ABunnyCharacter::MoveRight);
@@ -167,8 +213,6 @@ void ABunnyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	//Joystick
 	PlayerInputComponent->BindAxis("LookUpRate", this, &ABunnyCharacter::LookUpAtRate);
 
-	PlayerInputComponent->BindAction("Glide", IE_Pressed, this, &ABunnyCharacter::Glide);
-	PlayerInputComponent->BindAction("Glide", IE_Released, this, &ABunnyCharacter::StopGliding);
 }
 
 void ABunnyCharacter::TurnAtRate(float Rate)
@@ -392,4 +436,9 @@ void ABunnyCharacter::StopGliding()
 		GetCharacterMovement()->GravityScale = DefaultGravityScale;
 		GetCharacterMovement()->AirControl = DefaultAirControl;
 	}
+}
+
+void ABunnyCharacter::Menu()
+{
+	UGameplayStatics::OpenLevel(GetWorld(), "MainMenu");
 }

@@ -48,6 +48,9 @@ private:
 		const FHitResult &SweepResult);
 
 	UFUNCTION()
+		void Menu();
+
+	UFUNCTION()
 		void SwapLevel();
 
 

@@ -13,6 +13,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "AreaTrigger.h"
 
 
 // Sets default values
@@ -203,7 +204,7 @@ void ABunnyCharacter::MoveRight(float Value)
 	}
 }
 
-/*
+
 void ABunnyCharacter::BeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	AActor* OtherActor,
 	UPrimitiveComponent* OtherComp,
@@ -211,16 +212,94 @@ void ABunnyCharacter::BeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	bool bFromSweep,
 	const FHitResult &SweepResult)
 {
-	if (bCanClimb == false)
+	UE_LOG(LogTemp, Warning, TEXT("Overlap detected"));
+	FString name = OtherActor->GetName();
+	UE_LOG(LogTemp, Warning, TEXT("Name retrieved"));
+	AAreaTrigger *OverlappedActor = dynamic_cast<AAreaTrigger*>(OtherActor);
+	UE_LOG(LogTemp, Warning, TEXT("Casting complete"));
+	//FString name = OverlappedActor->RetrieveName();
+
+	if (name == "Caterpillar")
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Caterpillar Encountered"));
 		bCanClimb = true;
+		if (OverlappedActor->GetbIsDestructible())
+		{
+			OtherActor->Destroy();
+		}
 	}
-	else if ((bCanClimb == true) && (bCanGlide == false))
+	else if (name == "Squirrel")
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Squirrel Encountered"));
 		bCanGlide = true;
+		if (OverlappedActor->GetbIsDestructible())
+		{
+			OtherActor->Destroy();
+		}
+	}
+	/*
+	else if (name == "Skunk")
+	{
+		bCanScare = true;
+		if (OverlappedActor->GetbIsDestructible())
+		{
+			OtherActor->Destroy();
+		}
+	}
+	*/
+	else if (name == "End")
+	{
+		UE_LOG(LogTemp, Warning, TEXT("End Encountered"));
+		if (OverlappedActor->GetbIsDestructible())
+		{
+			OtherActor->Destroy();
+		}
+		SwapLevel();
+	}
+	/*
+	else if (name == "AreaTrigger")
+	{
+	UE_LOG(LogTemp, Warning, TEXT("Area Trigger Encountered"));
+		if (OverlappedActor->GetbIsDestructible())
+		{
+			OtherActor->Destroy();
+		}
+	}
+	else if (name == "AreaTriggerActor")
+	{
+	UE_LOG(LogTemp, Warning, TEXT("Area Trigger Encountered"));
+		if (OverlappedActor->GetbIsDestructible())
+		{
+			OtherActor->Destroy();
+		}
+	}
+	*/
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Nothing Encountered"));
 	}
 }
-*/
+
+void ABunnyCharacter::SwapLevel()
+{
+	UWorld* TheWorld = GetWorld();
+
+	FString CurrentLevel = TheWorld->GetMapName();
+
+	if (CurrentLevel == "BunnyTutorialMap")
+	{
+		UGameplayStatics::OpenLevel(GetWorld(), "Level1");
+	}
+	else if (CurrentLevel == "Level1")
+	{
+		UGameplayStatics::OpenLevel(GetWorld(), "Level2");
+	}
+	else
+	{
+		UGameplayStatics::OpenLevel(GetWorld(), "BunnyTutorialMap");
+	}
+}
+
 void ABunnyCharacter::toggleClimb()
 {
 	if (!bCanClimb)

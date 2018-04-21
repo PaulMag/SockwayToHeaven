@@ -11,6 +11,22 @@ AAreaTriggerActor::AAreaTriggerActor()
 
 }
 
+bool AAreaTriggerActor::GetbIsOverlappable()
+{
+	return bIsOverlappable;
+}
+
+bool AAreaTriggerActor::GetbIsDestructible()
+{
+	return bIsDestructible;
+}
+
+FString AAreaTriggerActor::RetrieveName()
+{
+	return name;
+}
+
+
 // Called when the game starts or when spawned
 void AAreaTriggerActor::BeginPlay()
 {

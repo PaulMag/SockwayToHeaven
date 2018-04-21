@@ -14,6 +14,7 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "AreaTrigger.h"
+#include "BunnyGameInstance.h"
 
 
 // Sets default values
@@ -45,6 +46,23 @@ void ABunnyCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+
+	UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
+	if (BGI)
+	{
+		if (BGI->bCanClimb)
+			bCanClimb = true;
+	}
+	if (BGI)
+	{
+		if (BGI->bCanGlide)
+			bCanGlide = true;
+	}
+	if (BGI)
+	{
+		if (BGI->bCanScare)
+			bCanScare = true;
+	}
 }
 
 // Called every frame
@@ -212,17 +230,19 @@ void ABunnyCharacter::BeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	bool bFromSweep,
 	const FHitResult &SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Overlap detected"));
 	FString name = OtherActor->GetName();
-	UE_LOG(LogTemp, Warning, TEXT("Name retrieved"));
 	AAreaTrigger *OverlappedActor = dynamic_cast<AAreaTrigger*>(OtherActor);
-	UE_LOG(LogTemp, Warning, TEXT("Casting complete"));
 	//FString name = OverlappedActor->RetrieveName();
 
 	if (name == "Caterpillar")
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Caterpillar Encountered"));
-		bCanClimb = true;
+		bCanClimb = true;	
+		UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
+		if (BGI)
+		{
+			BGI->bCanClimb = true;
+		}
 		if (OverlappedActor->GetbIsDestructible())
 		{
 			OtherActor->Destroy();
@@ -232,21 +252,29 @@ void ABunnyCharacter::BeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Squirrel Encountered"));
 		bCanGlide = true;
+		UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
+		if (BGI)
+		{
+			BGI->bCanGlide = true;
+		}
 		if (OverlappedActor->GetbIsDestructible())
 		{
 			OtherActor->Destroy();
 		}
 	}
-	/*
 	else if (name == "Skunk")
 	{
 		bCanScare = true;
+		UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
+		if (BGI)
+		{
+		BGI->bCanScare = true;
+		}
 		if (OverlappedActor->GetbIsDestructible())
 		{
 			OtherActor->Destroy();
 		}
 	}
-	*/
 	else if (name == "End")
 	{
 		UE_LOG(LogTemp, Warning, TEXT("End Encountered"));
@@ -256,27 +284,9 @@ void ABunnyCharacter::BeginOverlap(UPrimitiveComponent* OverlappedComponent,
 		}
 		SwapLevel();
 	}
-	/*
-	else if (name == "AreaTrigger")
-	{
-	UE_LOG(LogTemp, Warning, TEXT("Area Trigger Encountered"));
-		if (OverlappedActor->GetbIsDestructible())
-		{
-			OtherActor->Destroy();
-		}
-	}
-	else if (name == "AreaTriggerActor")
-	{
-	UE_LOG(LogTemp, Warning, TEXT("Area Trigger Encountered"));
-		if (OverlappedActor->GetbIsDestructible())
-		{
-			OtherActor->Destroy();
-		}
-	}
-	*/
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Nothing Encountered"));
+		UE_LOG(LogTemp, Warning, TEXT("Nothing Recognizable Encountered"));
 	}
 }
 
@@ -289,6 +299,7 @@ void ABunnyCharacter::SwapLevel()
 	if (CurrentLevel == "BunnyTutorialMap")
 	{
 		UGameplayStatics::OpenLevel(GetWorld(), "Level1");
+
 	}
 	else if (CurrentLevel == "Level1")
 	{

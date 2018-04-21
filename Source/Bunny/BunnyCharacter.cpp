@@ -274,7 +274,7 @@ void ABunnyCharacter::BeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	bool bFromSweep,
 	const FHitResult &SweepResult)
 {
-	FString name = OtherActor->GetName();
+	FString name = OtherActor->GetActorLabel();
 	AAreaTrigger *OverlappedActor = dynamic_cast<AAreaTrigger*>(OtherActor);
 	//FString name = OverlappedActor->RetrieveName();
 
@@ -348,6 +348,10 @@ void ABunnyCharacter::SwapLevel()
 	else if (CurrentLevel == "Level1")
 	{
 		UGameplayStatics::OpenLevel(GetWorld(), "Level2");
+	}
+	else if (CurrentLevel == "Level2")
+	{
+		UGameplayStatics::OpenLevel(GetWorld(), "Main Menu");
 	}
 	else
 	{

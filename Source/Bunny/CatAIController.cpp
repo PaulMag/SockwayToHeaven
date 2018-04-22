@@ -34,7 +34,15 @@ void ACatAIController::setAlertMode(int mode)
 	takeAction();
 }
 
+void ACatAIController::wait()
+/* Stand still for a while before taking a new action. */
+{
+	StopMovement();
+	GetWorldTimerManager().SetTimer(moveTimerHandle, this, &ACatAIController::takeAction, 2.0, false);
+}
+
 void ACatAIController::paceToRandomPoint()
+/* Move to a random nearby position. */
 {
 	float direction = FMath::RandRange(0.f, 2*PI);
 	float distance = FMath::RandRange(100.f, 300.f);
@@ -43,6 +51,19 @@ void ACatAIController::paceToRandomPoint()
 	target += pawn->GetActorLocation();
 	UE_LOG(LogTemp, Warning, TEXT("CAT: Move started to (%f, %f)"), target.X, target.Y);
 	MoveToLocation(target, 5);
+}
+
+void ACatAIController::paceToPlayer()
+/* Move towards player character, but only for a few seconds. */
+{
+	float direction = FMath::RandRange(0.f, 2*PI);
+	float distance = FMath::RandRange(0.f, 50.f);
+	target.X = cos(direction) * distance;
+	target.Y = sin(direction) * distance;
+	target += playerPawn->GetActorLocation();
+	UE_LOG(LogTemp, Warning, TEXT("CAT: Move started towards player: (%f, %f)"), target.X, target.Y);
+	MoveToLocation(target, 5);
+	GetWorldTimerManager().SetTimer(moveTimerHandle, this, &ACatAIController::wait, 2.0, false);
 }
 
 void ACatAIController::chasePlayer()
@@ -63,6 +84,10 @@ void ACatAIController::takeAction()
 	{
 		chasePlayer();
 	}
+	else if (alertMode == suspicious)
+	{
+		paceToPlayer();
+	}
 	else
 	{
 		paceToRandomPoint();
@@ -79,10 +104,10 @@ void ACatAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollow
 		 * stopped because no further path to the player.
 		 * If the cat knows where the bunny is but can't reach it
 		 * he might as well stand and attack in the air and try to be intimidating.
-		*/
+		 */
 		pawn->attackBegin();
 	}
-	else
+	else if (alertMode == idle)
 	{
 		GetWorldTimerManager().SetTimer(moveTimerHandle, this, &ACatAIController::takeAction, 2.0, false);
 	}

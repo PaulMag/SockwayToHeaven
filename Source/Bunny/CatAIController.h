@@ -27,7 +27,9 @@ protected:
 	FTimerHandle moveTimerHandle;
 	int alertMode = idle;
 	bool bAttackMode = false;
+	void wait();
 	void paceToRandomPoint();
+	void paceToPlayer();
 	void chasePlayer();
 
 public:

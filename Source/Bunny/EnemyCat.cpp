@@ -3,6 +3,7 @@
 #include "EnemyCat.h"
 #include "CatAIController.h"
 #include "TimerManager.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 
 AEnemyCat::AEnemyCat()
@@ -15,6 +16,7 @@ void AEnemyCat::BeginPlay()
 	Super::BeginPlay();
 	playerPawn = Cast<ABunnyCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
 	GetWorldTimerManager().SetTimer(visionTimerHandle, this, &AEnemyCat::tickVision, deltaTimeVision, true);
+	GetCharacterMovement()->MaxWalkSpeed = maxWalkSpeed * walkSpeedRatios[idle];
 }
 
 void AEnemyCat::Tick(float DeltaTime)
@@ -106,15 +108,20 @@ void AEnemyCat::tickVision()
 		UE_LOG(LogTemp, Error, TEXT("Not hitting anything, angle=%f"), angle);
 	}
 	UE_LOG(LogTemp, Warning, TEXT("Alert level: %f"), alert);
-	if (!bChaseMode && alert >= alertChasing)
+
+	int newAlertMode;
+	if (alert >= alertChasing)
+		newAlertMode = chasing;
+	else if (alert >= alertSuspicious)
+		newAlertMode = suspicious;
+	else
+		newAlertMode = idle;
+	if (newAlertMode != alertMode)  // only update if alertMode has changed
 	{
-		bChaseMode = true;
-		controller->setChaseMode(true);
-	}
-	else if (bChaseMode && alert < alertChasing)
-	{
-		bChaseMode = false;
-		controller->setChaseMode(false);
+		alertMode = newAlertMode;
+		controller->setAlertMode(newAlertMode);
+		GetCharacterMovement()->MaxWalkSpeed = maxWalkSpeed * walkSpeedRatios[alertMode];
+		UE_LOG(LogTemp, Warning, TEXT("Cat changed alertMode to %d"), alertMode);
 	}
 }
 

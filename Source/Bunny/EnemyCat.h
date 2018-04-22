@@ -17,6 +17,11 @@ class BUNNY_API AEnemyCat : public ACharacter
 	GENERATED_BODY()
 
 protected:
+	enum { idle = 0, suspicious = 1, chasing = 2 };
+
+	float maxWalkSpeed = 150.;
+	TArray<float> walkSpeedRatios = { 0.5, 0.75, 1.00 };
+
 	float alert = 0.;
 	float alertMin = 0.;
 	float alertSuspicious = 1.;  // threshold for becoming suspicious
@@ -25,7 +30,7 @@ protected:
 	float alertIncrease = 0.75;  // How much alertLevel increases per second when seen
 	float alertDecay = 0.25;  // How much alertLevel decreses per second when not seen
 	void addAlert(float amount);
-	bool bChaseMode = false;
+	int alertMode = idle;
 
 	ABunnyCharacter* playerPawn;
 	FVector visionTraceStart;

@@ -16,6 +16,8 @@ class BUNNY_API ACatAIController : public AAIController
 	GENERATED_BODY()
 	
 protected:
+	enum { idle = 0, suspicious = 1, chasing = 2 };
+
 	AEnemyCat* pawn;
 	
 	virtual void BeginPlay() override;
@@ -23,7 +25,7 @@ protected:
 	ABunnyCharacter* playerPawn;
 	FVector target;
 	FTimerHandle moveTimerHandle;
-	bool bChaseMode = false;
+	int alertMode = idle;
 	bool bAttackMode = false;
 	void paceToRandomPoint();
 	void chasePlayer();
@@ -32,6 +34,6 @@ public:
 	ACatAIController();
 	virtual void Tick(float DeltaTime) override;
 	void takeAction();
-	void setChaseMode(bool bMode);
+	void setAlertMode(int mode);
 	void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
 };

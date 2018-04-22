@@ -24,10 +24,10 @@ void ACatAIController::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ACatAIController::setChaseMode(bool bMode)
+void ACatAIController::setAlertMode(int mode)
 {
-	bChaseMode = bMode;
-	if (bChaseMode)
+	alertMode = mode;
+	if (alertMode == chasing)
 	{
 		GetWorldTimerManager().ClearTimer(moveTimerHandle);
 	}
@@ -55,11 +55,11 @@ void ACatAIController::takeAction()
 	StopMovement();
 	GetWorldTimerManager().ClearTimer(moveTimerHandle);
 
-	if (bChaseMode && pawn->isInAttackRange())
+	if (alertMode == chasing && pawn->isInAttackRange())
 	{
 		pawn->attackBegin();
 	}
-	else if (bChaseMode)
+	else if (alertMode == chasing)
 	{
 		chasePlayer();
 	}
@@ -72,7 +72,7 @@ void ACatAIController::takeAction()
 void ACatAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult & Result)
 {
 	UE_LOG(LogTemp, Warning, TEXT("CAT: Move completed"));
-	if (bChaseMode)
+	if (alertMode == chasing)
 	{
 		/* Default to attacking when done chasing.
 		 * This happens both if chase stops because player was reached or if chase 

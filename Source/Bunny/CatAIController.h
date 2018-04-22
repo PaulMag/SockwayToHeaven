@@ -24,11 +24,14 @@ protected:
 	FVector target;
 	FTimerHandle moveTimerHandle;
 	bool bChaseMode = false;
+	bool bAttackMode = false;
+	void paceToRandomPoint();
+	void chasePlayer();
 
 public:
 	ACatAIController();
 	virtual void Tick(float DeltaTime) override;
-	void paceToRandomPoint();
-	void chasePlayer();
+	void takeAction();
+	void setChaseMode(bool bMode);
 	void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
 };

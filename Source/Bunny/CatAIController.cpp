@@ -1,5 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "BunnyCharacter.h"
 #include "CatAIController.h"
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "TimerManager.h"
@@ -23,23 +24,49 @@ void ACatAIController::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void ACatAIController::setChaseMode(bool bMode)
+{
+	bChaseMode = bMode;
+	if (bChaseMode)
+	{
+		GetWorldTimerManager().ClearTimer(moveTimerHandle);
+	}
+	takeAction();
+}
+
 void ACatAIController::paceToRandomPoint()
 {
-	bChaseMode = false;
 	float direction = FMath::RandRange(0.f, 2*PI);
 	float distance = FMath::RandRange(100.f, 300.f);
 	target.X = cos(direction) * distance;
 	target.Y = sin(direction) * distance;
 	target += pawn->GetActorLocation();
 	UE_LOG(LogTemp, Warning, TEXT("CAT: Move started to (%f, %f)"), target.X, target.Y);
-	MoveToLocation(target);
+	MoveToLocation(target, 5);
 }
 
 void ACatAIController::chasePlayer()
 {
-	bChaseMode = true;
-	GetWorldTimerManager().ClearTimer(moveTimerHandle);
 	MoveToActor(playerPawn, 0);
+}
+
+void ACatAIController::takeAction()
+{
+	StopMovement();
+	GetWorldTimerManager().ClearTimer(moveTimerHandle);
+
+	if (bChaseMode && pawn->isInAttackRange())
+	{
+		pawn->attackBegin();
+	}
+	else if (bChaseMode)
+	{
+		chasePlayer();
+	}
+	else
+	{
+		paceToRandomPoint();
+	}
 }
 
 void ACatAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult & Result)
@@ -47,10 +74,16 @@ void ACatAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollow
 	UE_LOG(LogTemp, Warning, TEXT("CAT: Move completed"));
 	if (bChaseMode)
 	{
+		/* Default to attacking when done chasing.
+		 * This happens both if chase stops because player was reached or if chase 
+		 * stopped because no further path to the player.
+		 * If the cat knows where the bunny is but can't reach it
+		 * he might as well stand and attack in the air and try to be intimidating.
+		*/
 		pawn->attackBegin();
 	}
 	else
 	{
-		GetWorldTimerManager().SetTimer(moveTimerHandle, this, &ACatAIController::paceToRandomPoint, 2.0, false);
+		GetWorldTimerManager().SetTimer(moveTimerHandle, this, &ACatAIController::takeAction, 2.0, false);
 	}
 }

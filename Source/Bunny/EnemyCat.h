@@ -23,7 +23,8 @@ protected:
 	float alertChasing = 2.;  // threshold for starting to chase
 	float alertMax= 3.;
 	float alertIncrease = 0.75;  // How much alertLevel increases per second when seen
-	float alertDecay = 0.1;  // How much alertLevel decreses per second when not seen
+	float alertDecay = 0.25;  // How much alertLevel decreses per second when not seen
+	void addAlert(float amount);
 	bool bChaseMode = false;
 
 	ABunnyCharacter* playerPawn;
@@ -47,6 +48,8 @@ public:
 	AEnemyCat();
 	virtual void Tick(float DeltaTime) override;
 	float getAttackReach();
+	float getAttackTime();
+	bool isInAttackRange();
 	void attackBegin();
 	void attackEnd();
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

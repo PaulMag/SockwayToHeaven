@@ -26,6 +26,14 @@ float AEnemyCat::getAttackReach()
 {
 	return attackReach;
 }
+float AEnemyCat::getAttackTime()
+{
+	return attackTime;
+}
+bool AEnemyCat::isInAttackRange()
+{
+	return (GetActorLocation() - playerPawn->GetActorLocation()).Size() <= attackReach;
+}
 
 void AEnemyCat::attackBegin()
 {
@@ -33,15 +41,26 @@ void AEnemyCat::attackBegin()
 
 }void AEnemyCat::attackEnd()
 {
-	if ((GetActorLocation() - playerPawn->GetActorLocation()).Size() <= attackReach)
+	if (isInAttackRange())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ATTACK: KILLED player"));
+		controller->takeAction();
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ATTACK: missed player"));
-		controller->chasePlayer();
+		controller->takeAction();
 	}
+}
+
+void AEnemyCat::addAlert(float amount)
+{
+	alert += amount;
+	if (alert > alertMax)
+		alert = alertMax;
+	else if (alert < alertMin)
+		alert = alertMin;
+	//FMath::Clamp(alert, alertMin, alertMax);
 }
 
 void AEnemyCat::tickVision()
@@ -73,12 +92,12 @@ void AEnemyCat::tickVision()
 	{
 		if (visionTraceHit.GetActor() == playerPawn && angle <= 75)
 		{
-			alert += alertIncrease * deltaTimeVision;
+			addAlert(alertIncrease * deltaTimeVision);
 			//UE_LOG(LogTemp, Warning, TEXT("I SEE YOU, %s!, angle=%f"), *visionTraceHit.GetActor()->GetName(), angle);
 		}
 		else
 		{
-			alert -= alertDecay * deltaTimeVision;
+			addAlert(-alertDecay * deltaTimeVision);
 			//UE_LOG(LogTemp, Warning, TEXT("I don't see you, %s, angle=%f"), *visionTraceHit.GetActor()->GetName(), angle);
 		}
 	}
@@ -90,12 +109,12 @@ void AEnemyCat::tickVision()
 	if (!bChaseMode && alert >= alertChasing)
 	{
 		bChaseMode = true;
-		controller->chasePlayer();
+		controller->setChaseMode(true);
 	}
 	else if (bChaseMode && alert < alertChasing)
 	{
 		bChaseMode = false;
-		controller->paceToRandomPoint();
+		controller->setChaseMode(false);
 	}
 }
 

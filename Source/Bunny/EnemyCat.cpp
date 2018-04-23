@@ -41,7 +41,9 @@ void AEnemyCat::attackBegin()
 {
 	GetWorldTimerManager().SetTimer(attackTimerHandle, this, &AEnemyCat::attackEnd, attackTime, false);
 
-}void AEnemyCat::attackEnd()
+}
+
+void AEnemyCat::attackEnd()
 {
 	if (isInAttackRange())
 	{

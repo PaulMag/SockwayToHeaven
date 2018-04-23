@@ -13,6 +13,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "AreaTrigger.h"
+#include "BunnyGameInstance.h"
 
 
 // Sets default values
@@ -44,6 +46,66 @@ void ABunnyCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+
+	UWorld* TheWorld = GetWorld();
+	FString CurrentLevel = TheWorld->GetMapName();
+
+		if (CurrentLevel == "BunnyTutorialMap")
+		{
+			bool bCanGlide = false;
+			bool bCanClimb = false;
+			bool bCanScare = false;
+			UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
+			if (BGI)
+			{
+				BGI->bCanClimb = false;
+				BGI->bCanGlide = false;
+				BGI->bCanScare = false;
+			}
+		}
+		else if (CurrentLevel == "Level1")
+		{
+			bool bCanGlide = true;
+			bool bCanClimb = false;
+			bool bCanScare = false;
+			UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
+			if (BGI)
+			{
+				BGI->bCanClimb = true;
+				BGI->bCanGlide = false;
+				BGI->bCanScare = false;
+			}
+		}
+		else if (CurrentLevel == "Level2")
+		{
+			bool bCanGlide = true;
+			bool bCanClimb = true;
+			bool bCanScare = true;
+			UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
+			if (BGI)
+			{
+				BGI->bCanClimb = true;
+				BGI->bCanGlide = true;
+				BGI->bCanScare = true;
+			}
+		}
+
+	UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
+	if (BGI)
+	{
+		if (BGI->bCanClimb)
+			bCanClimb = true;
+	}
+	if (BGI)
+	{
+		if (BGI->bCanGlide)
+			bCanGlide = true;
+	}
+	if (BGI)
+	{
+		if (BGI->bCanScare)
+			bCanScare = true;
+	}
 }
 
 // Called every frame
@@ -135,6 +197,9 @@ void ABunnyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	PlayerInputComponent->BindAction("Climb", IE_Pressed, this, &ABunnyCharacter::toggleClimb);
+	PlayerInputComponent->BindAction("Glide", IE_Pressed, this, &ABunnyCharacter::Glide);
+	PlayerInputComponent->BindAction("Glide", IE_Released, this, &ABunnyCharacter::StopGliding);
+	PlayerInputComponent->BindAction("Menu", IE_Pressed, this, &ABunnyCharacter::Menu);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ABunnyCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ABunnyCharacter::MoveRight);
@@ -148,8 +213,6 @@ void ABunnyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	//Joystick
 	PlayerInputComponent->BindAxis("LookUpRate", this, &ABunnyCharacter::LookUpAtRate);
 
-	PlayerInputComponent->BindAction("Glide", IE_Pressed, this, &ABunnyCharacter::Glide);
-	PlayerInputComponent->BindAction("Glide", IE_Released, this, &ABunnyCharacter::StopGliding);
 }
 
 void ABunnyCharacter::TurnAtRate(float Rate)
@@ -203,7 +266,7 @@ void ABunnyCharacter::MoveRight(float Value)
 	}
 }
 
-/*
+
 void ABunnyCharacter::BeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	AActor* OtherActor,
 	UPrimitiveComponent* OtherComp,
@@ -211,16 +274,91 @@ void ABunnyCharacter::BeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	bool bFromSweep,
 	const FHitResult &SweepResult)
 {
-	if (bCanClimb == false)
+	FString name = OtherActor->GetActorLabel();
+	AAreaTrigger *OverlappedActor = dynamic_cast<AAreaTrigger*>(OtherActor);
+	//FString name = OverlappedActor->RetrieveName();
+
+	if (name == "Caterpillar")
 	{
-		bCanClimb = true;
+		UE_LOG(LogTemp, Warning, TEXT("Caterpillar Encountered"));
+		bCanClimb = true;	
+		UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
+		if (BGI)
+		{
+			BGI->bCanClimb = true;
+		}
+		if (OverlappedActor->GetbIsDestructible())
+		{
+			OtherActor->Destroy();
+		}
 	}
-	else if ((bCanClimb == true) && (bCanGlide == false))
+	else if (name == "Squirrel")
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Squirrel Encountered"));
 		bCanGlide = true;
+		UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
+		if (BGI)
+		{
+			BGI->bCanGlide = true;
+		}
+		if (OverlappedActor->GetbIsDestructible())
+		{
+			OtherActor->Destroy();
+		}
+	}
+	else if (name == "Skunk")
+	{
+		bCanScare = true;
+		UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
+		if (BGI)
+		{
+		BGI->bCanScare = true;
+		}
+		if (OverlappedActor->GetbIsDestructible())
+		{
+			OtherActor->Destroy();
+		}
+	}
+	else if (name == "End")
+	{
+		UE_LOG(LogTemp, Warning, TEXT("End Encountered"));
+		if (OverlappedActor->GetbIsDestructible())
+		{
+			OtherActor->Destroy();
+		}
+		SwapLevel();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Nothing Recognizable Encountered"));
 	}
 }
-*/
+
+void ABunnyCharacter::SwapLevel()
+{
+	UWorld* TheWorld = GetWorld();
+
+	FString CurrentLevel = TheWorld->GetMapName();
+
+	if (CurrentLevel == "BunnyTutorialMap")
+	{
+		UGameplayStatics::OpenLevel(GetWorld(), "Level1");
+
+	}
+	else if (CurrentLevel == "Level1")
+	{
+		UGameplayStatics::OpenLevel(GetWorld(), "Level2");
+	}
+	else if (CurrentLevel == "Level2")
+	{
+		UGameplayStatics::OpenLevel(GetWorld(), "Main Menu");
+	}
+	else
+	{
+		UGameplayStatics::OpenLevel(GetWorld(), "BunnyTutorialMap");
+	}
+}
+
 void ABunnyCharacter::toggleClimb()
 {
 	if (!bCanClimb)
@@ -302,4 +440,9 @@ void ABunnyCharacter::StopGliding()
 		GetCharacterMovement()->GravityScale = DefaultGravityScale;
 		GetCharacterMovement()->AirControl = DefaultAirControl;
 	}
+}
+
+void ABunnyCharacter::Menu()
+{
+	UGameplayStatics::OpenLevel(GetWorld(), "MainMenu");
 }

@@ -50,6 +50,7 @@ void AEnemyCat::attackEnd()
 	if (isInAttackRange())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ATTACK: KILLED player"));
+		playerPawn->Death();
 		controller->takeAction();
 	}
 	else

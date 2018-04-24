@@ -132,6 +132,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void Death();
+
 	/*
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 

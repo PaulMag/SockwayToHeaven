@@ -52,8 +52,8 @@ void ABunnyCharacter::BeginPlay()
 
 		if (CurrentLevel == "BunnyTutorialMap")
 		{
-			bool bCanGlide = false;
 			bool bCanClimb = false;
+			bool bCanGlide = false;
 			bool bCanScare = false;
 			UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
 			if (BGI)
@@ -65,8 +65,21 @@ void ABunnyCharacter::BeginPlay()
 		}
 		else if (CurrentLevel == "Level1")
 		{
-			bool bCanGlide = true;
 			bool bCanClimb = false;
+			bool bCanGlide = false;
+			bool bCanScare = false;
+			UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
+			if (BGI)
+			{
+				BGI->bCanClimb = false;
+				BGI->bCanGlide = false;
+				BGI->bCanScare = false;
+			}
+		}
+		else if (CurrentLevel == "Level2")
+		{
+			bool bCanClimb = true;
+			bool bCanGlide = false;
 			bool bCanScare = false;
 			UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
 			if (BGI)
@@ -76,21 +89,7 @@ void ABunnyCharacter::BeginPlay()
 				BGI->bCanScare = false;
 			}
 		}
-		else if (CurrentLevel == "Level2")
-		{
-			bool bCanGlide = true;
-			bool bCanClimb = true;
-			bool bCanScare = true;
-			UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
-			if (BGI)
-			{
-				BGI->bCanClimb = true;
-				BGI->bCanGlide = true;
-				BGI->bCanScare = true;
-			}
-		}
-
-	UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
+		UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
 	if (BGI)
 	{
 		if (BGI->bCanClimb)
@@ -185,6 +184,18 @@ void ABunnyCharacter::Tick(float DeltaTime)
 			StopGliding();
 		}
 	}
+}
+
+void ABunnyCharacter::Death()
+{
+	UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
+	if (BGI)
+	{
+		UWorld* TheWorld = GetWorld();
+		FString CurrentLevel = TheWorld->GetMapName();
+		BGI->CurrentLevel = CurrentLevel;
+	}
+	UGameplayStatics::OpenLevel(GetWorld(), "DeathMenu");
 }
 
 // Called to bind functionality to input
@@ -328,6 +339,15 @@ void ABunnyCharacter::BeginOverlap(UPrimitiveComponent* OverlappedComponent,
 		}
 		SwapLevel();
 	}
+	else if (name == "Death")
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Death Encountered"));
+		if (OverlappedActor->GetbIsDestructible())
+		{
+			OtherActor->Destroy();
+		}
+		Death();
+	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Nothing Recognizable Encountered"));
@@ -444,5 +464,12 @@ void ABunnyCharacter::StopGliding()
 
 void ABunnyCharacter::Menu()
 {
+	UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
+	if (BGI)
+	{
+		UWorld* TheWorld = GetWorld();
+		FString CurrentLevel = TheWorld->GetMapName();
+		BGI->CurrentLevel = CurrentLevel;
+	}
 	UGameplayStatics::OpenLevel(GetWorld(), "MainMenu");
 }

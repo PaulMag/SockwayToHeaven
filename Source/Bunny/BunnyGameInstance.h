@@ -18,13 +18,18 @@ public:
 	UBunnyGameInstance(const FObjectInitializer& ObjectInitializer);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Variables)
-		bool bCanGlide = false;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Variables)
 		bool bCanClimb = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Variables)
+		bool bCanGlide = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Variables)
 		bool bCanScare = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Variables)
+		FString CurrentLevel;
+
+
 	
 	
 };

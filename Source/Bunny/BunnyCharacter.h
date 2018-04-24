@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "EnemyCat.h"
 #include "DrawDebugHelpers.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
@@ -19,6 +20,8 @@ class BUNNY_API ABunnyCharacter : public ACharacter
 	class UCameraComponent* FollowCamera;
 
 private:
+	AEnemyCat* enemyPawn;
+
 	FVector lineTraceStart;
 	FRotator lineTraceRotation;
 	FVector lineTraceEnd;
@@ -73,6 +76,8 @@ protected:
 	void Glide();
 
 	void StopGliding();
+
+	void scare();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 		float BaseTurnRate = 45.0f;

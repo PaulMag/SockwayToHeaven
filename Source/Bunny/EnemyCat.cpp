@@ -2,6 +2,7 @@
 
 #include "EnemyCat.h"
 #include "CatAIController.h"
+#include "BunnyCharacter.h"
 #include "TimerManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -22,6 +23,7 @@ void AEnemyCat::BeginPlay()
 void AEnemyCat::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	addSpook(-spookDecay * DeltaTime);
 }
 
 float AEnemyCat::getAttackReach()
@@ -65,6 +67,52 @@ void AEnemyCat::addAlert(float amount)
 	else if (alert < alertMin)
 		alert = alertMin;
 	//FMath::Clamp(alert, alertMin, alertMax);
+}
+
+void AEnemyCat::addSpook(float amount)
+/* Magnitude of spookiness and the location of the source of the spook. */
+{
+	spook += amount;
+	if (spook > spookMax)
+		spook = spookMax;
+	else if (spook < spookMin)
+		spook = spookMin;
+
+	int newSpookMode;
+	if (spook >= spookSpooked)
+		newSpookMode = spooked;
+	else
+		newSpookMode = calm;
+
+	if (newSpookMode != spookMode)  // only update if spookMode has changed
+	{
+		spookMode = newSpookMode;
+		UE_LOG(LogTemp, Warning, TEXT("Cat changed SPOOKMode to %d"), spookMode);
+		controller->setSpookMode(newSpookMode);
+	}
+}
+
+void AEnemyCat::addSpook(float amount, FVector location)
+/* Magnitude of spookiness and the location of the source of the spook. */
+{
+	spook += amount;
+	if (spook > spookMax)
+		spook = spookMax;
+	else if (spook < spookMin)
+		spook = spookMin;
+
+	int newSpookMode;
+	if (spook >= spookSpooked)
+		newSpookMode = spooked;
+	else
+		newSpookMode = calm;
+
+	if (newSpookMode != spookMode)  // only update if spookMode has changed
+	{
+		spookMode = newSpookMode;
+		UE_LOG(LogTemp, Warning, TEXT("Cat changed SPOOKMode to %d"), spookMode);
+	}
+	controller->setSpookMode(newSpookMode, location);
 }
 
 void AEnemyCat::tickVision()

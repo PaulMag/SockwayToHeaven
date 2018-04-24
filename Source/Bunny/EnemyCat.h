@@ -3,7 +3,7 @@
 #pragma once
 
 class ACatAIController;  // Forward declaration to avoid infinite recursion
-#include "BunnyCharacter.h"
+class ABunnyCharacter;
 #include "DrawDebugHelpers.h"
 
 #include "CoreMinimal.h"
@@ -18,6 +18,7 @@ class BUNNY_API AEnemyCat : public ACharacter
 
 protected:
 	enum { idle = 0, suspicious = 1, chasing = 2 };
+	enum { calm = 0, spooked = 1 };
 
 	float maxWalkSpeed = 150.;
 	TArray<float> walkSpeedRatios = { 0.5, 0.75, 1.00 };
@@ -31,6 +32,14 @@ protected:
 	float alertDecay = 0.25;  // How much alertLevel decreses per second when not seen
 	void addAlert(float amount);
 	int alertMode = idle;
+	int spookMode = calm;
+
+	float spook = 0.;
+	float spookMin = 0.;
+	float spookSpooked = 1.;
+	float spookMax = 3.;
+	float spookDecay = 0.40;
+	void addSpook(float amount);  // only for decay
 
 	ABunnyCharacter* playerPawn;
 	FVector visionTraceStart;
@@ -57,5 +66,6 @@ public:
 	bool isInAttackRange();
 	void attackBegin();
 	void attackEnd();
+	void addSpook(float amount, FVector location);
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 };

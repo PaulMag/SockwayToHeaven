@@ -44,10 +44,13 @@ ABunnyCharacter::ABunnyCharacter()
 void ABunnyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
+	UWorld* TheWorld = GetWorld();
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 
-	UWorld* TheWorld = GetWorld();
+	TArray<AActor*> foundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemyCat::StaticClass(), foundActors);
+	enemyPawn = Cast<AEnemyCat>(foundActors[0]);
+
 	FString CurrentLevel = TheWorld->GetMapName();
 
 		if (CurrentLevel == "BunnyTutorialMap")
@@ -199,6 +202,7 @@ void ABunnyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAction("Climb", IE_Pressed, this, &ABunnyCharacter::toggleClimb);
 	PlayerInputComponent->BindAction("Glide", IE_Pressed, this, &ABunnyCharacter::Glide);
 	PlayerInputComponent->BindAction("Glide", IE_Released, this, &ABunnyCharacter::StopGliding);
+	PlayerInputComponent->BindAction("Scare", IE_Pressed, this, &ABunnyCharacter::scare);
 	PlayerInputComponent->BindAction("Menu", IE_Pressed, this, &ABunnyCharacter::Menu);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ABunnyCharacter::MoveForward);
@@ -440,6 +444,11 @@ void ABunnyCharacter::StopGliding()
 		GetCharacterMovement()->GravityScale = DefaultGravityScale;
 		GetCharacterMovement()->AirControl = DefaultAirControl;
 	}
+}
+
+void ABunnyCharacter::scare()
+{
+	enemyPawn->addSpook(3.0, GetActorLocation());
 }
 
 void ABunnyCharacter::Menu()

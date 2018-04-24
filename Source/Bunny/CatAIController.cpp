@@ -34,6 +34,29 @@ void ACatAIController::setAlertMode(int mode)
 	takeAction();
 }
 
+void ACatAIController::setSpookMode(int mode)
+/* Whether spooked or not and the location of the source of the spook. */
+{
+	spookMode = mode;
+	if (spookMode == spooked)
+	{
+		GetWorldTimerManager().ClearTimer(moveTimerHandle);
+	}
+	takeAction();
+}
+
+void ACatAIController::setSpookMode(int mode, FVector location)
+/* Whether spooked or not and the location of the source of the spook. */
+{
+	spookMode = mode;
+	if (spookMode == spooked)
+	{
+		spookLocation = location;
+		GetWorldTimerManager().ClearTimer(moveTimerHandle);
+	}
+	takeAction();
+}
+
 void ACatAIController::wait()
 /* Stand still for a while before taking a new action. */
 {
@@ -57,7 +80,7 @@ void ACatAIController::paceToPlayer()
 /* Move towards player character, but only for a few seconds. */
 {
 	float direction = FMath::RandRange(0.f, 2*PI);
-	float distance = FMath::RandRange(0.f, 50.f);
+	float distance = FMath::RandRange(30.f, 60.f);
 	target.X = cos(direction) * distance;
 	target.Y = sin(direction) * distance;
 	target += playerPawn->GetActorLocation();
@@ -71,12 +94,24 @@ void ACatAIController::chasePlayer()
 	MoveToActor(playerPawn, 0);
 }
 
+void ACatAIController::flee()
+{
+	//float angle = acos(visionTraceNormal.DotProduct(visionTraceNormal, GetActorForwardVector()) / (visionTraceNormal.Size() * GetActorForwardVector().Size())) / PI * 180;
+	FVector direction = (pawn->GetActorLocation() - spookLocation) / (pawn->GetActorLocation() - spookLocation).Size();
+	float distance = FMath::RandRange(100.f, 250.f);
+	MoveToLocation(pawn->GetActorLocation() + direction * distance);
+}
+
 void ACatAIController::takeAction()
 {
 	StopMovement();
 	GetWorldTimerManager().ClearTimer(moveTimerHandle);
 
-	if (alertMode == chasing && pawn->isInAttackRange())
+	if (spookMode == spooked)
+	{
+		flee();
+	}
+	else if (alertMode == chasing && pawn->isInAttackRange())
 	{
 		pawn->attackBegin();
 	}
@@ -97,7 +132,11 @@ void ACatAIController::takeAction()
 void ACatAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult & Result)
 {
 	UE_LOG(LogTemp, Warning, TEXT("CAT: Move completed"));
-	if (alertMode == chasing)
+	if (spookMode == spooked)
+	{
+		takeAction();
+	}
+	else if (alertMode == chasing)
 	{
 		/* Default to attacking when done chasing.
 		 * This happens both if chase stops because player was reached or if chase 

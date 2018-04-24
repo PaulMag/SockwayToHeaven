@@ -179,7 +179,12 @@ void ABunnyCharacter::Tick(float DeltaTime)
 		{
 			Glide();
 		}
-		else if (GetCharacterMovement()->Velocity.Z >= 0)
+		else if (GetCharacterMovement()->Velocity.Z > 0) //If moving up (from jump, for instance, stop movement and start gliding)
+		{
+			GetCharacterMovement()->Velocity.Z = 0;
+			Glide();
+		}
+		else if (GetCharacterMovement()->Velocity.Z == 0)
 		{
 			StopGliding();
 		}

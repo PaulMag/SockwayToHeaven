@@ -90,16 +90,27 @@ void ACatAIController::paceToPlayer()
 }
 
 void ACatAIController::chasePlayer()
+/* Start following the player character. */
 {
 	MoveToActor(playerPawn, 0);
 }
 
 void ACatAIController::flee()
+/* Move away from the source of the spook, and with a small randomness to the direction.
+ * This randomness prevents the cat from getting stuck in an infinite OnMoveCompleted loop when hitting a wall.
+ */
 {
-	//float angle = acos(visionTraceNormal.DotProduct(visionTraceNormal, GetActorForwardVector()) / (visionTraceNormal.Size() * GetActorForwardVector().Size())) / PI * 180;
-	FVector direction = (pawn->GetActorLocation() - spookLocation) / (pawn->GetActorLocation() - spookLocation).Size();
+	FVector directionVector = (pawn->GetActorLocation() - spookLocation) / (pawn->GetActorLocation() - spookLocation).Size();
 	float distance = FMath::RandRange(100.f, 250.f);
-	MoveToLocation(pawn->GetActorLocation() + direction * distance);
+	target = pawn->GetActorLocation() + directionVector * distance;
+	
+	float direction = FMath::RandRange(0.f, 2 * PI);
+	distance = FMath::RandRange(1.f, 40.f);
+	target.X += cos(direction) * distance;
+	target.Y += sin(direction) * distance;
+
+	UE_LOG(LogTemp, Warning, TEXT("CAT: Move fleeing from (%f, %f)"), target.X, target.Y);
+	MoveToLocation(target);
 }
 
 void ACatAIController::takeAction()

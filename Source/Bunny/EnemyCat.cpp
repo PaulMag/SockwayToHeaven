@@ -80,9 +80,16 @@ void AEnemyCat::addSpook(float amount)
 
 	int newSpookMode;
 	if (spook >= spookSpooked)
+	{
 		newSpookMode = spooked;
+		GetCharacterMovement()->MaxWalkSpeed = maxWalkSpeed * walkSpeedRatios[chasing];
+			// always max speed when spooked
+	}
 	else
+	{
 		newSpookMode = calm;
+		GetCharacterMovement()->MaxWalkSpeed = maxWalkSpeed * walkSpeedRatios[alertMode];
+	}
 
 	if (newSpookMode != spookMode)  // only update if spookMode has changed
 	{
@@ -103,9 +110,16 @@ void AEnemyCat::addSpook(float amount, FVector location)
 
 	int newSpookMode;
 	if (spook >= spookSpooked)
+	{
 		newSpookMode = spooked;
+		GetCharacterMovement()->MaxWalkSpeed = maxWalkSpeed * walkSpeedRatios[chasing];
+			// always max speed when spooked
+	}
 	else
+	{
 		newSpookMode = calm;
+		GetCharacterMovement()->MaxWalkSpeed = maxWalkSpeed * walkSpeedRatios[alertMode];
+	}
 
 	if (newSpookMode != spookMode)  // only update if spookMode has changed
 	{
@@ -170,7 +184,10 @@ void AEnemyCat::tickVision()
 	{
 		alertMode = newAlertMode;
 		controller->setAlertMode(newAlertMode);
-		GetCharacterMovement()->MaxWalkSpeed = maxWalkSpeed * walkSpeedRatios[alertMode];
+		if (spookMode != spooked)  // WalkSpeed is set elsewhere when spooked
+		{
+			GetCharacterMovement()->MaxWalkSpeed = maxWalkSpeed * walkSpeedRatios[alertMode];
+		}
 		UE_LOG(LogTemp, Warning, TEXT("Cat changed alertMode to %d"), alertMode);
 	}
 }

@@ -474,7 +474,10 @@ void ABunnyCharacter::StopGliding()
 
 void ABunnyCharacter::scare()
 {
-	enemyPawn->addSpook(3.0, GetActorLocation());
+	if (bCanScare)
+	{
+		enemyPawn->addSpook(3.0, GetActorLocation());
+	}
 }
 
 void ABunnyCharacter::Menu()

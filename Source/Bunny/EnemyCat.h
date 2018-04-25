@@ -20,7 +20,7 @@ protected:
 	enum { idle = 0, suspicious = 1, chasing = 2 };
 	enum { calm = 0, spooked = 1 };
 
-	float maxWalkSpeed = 150.;
+	float maxWalkSpeed = 180.;
 	TArray<float> walkSpeedRatios = { 0.5, 0.75, 1.00 };
 
 	float alert = 0.;
@@ -28,7 +28,7 @@ protected:
 	float alertSuspicious = 1.;  // threshold for becoming suspicious
 	float alertChasing = 2.;  // threshold for starting to chase
 	float alertMax= 3.;
-	float alertIncrease = 0.75;  // How much alertLevel increases per second when seen
+	float alertIncrease = 1.60;  // How much alertLevel increases per second when seen
 	float alertDecay = 0.25;  // How much alertLevel decreses per second when not seen
 	void addAlert(float amount);
 	int alertMode = idle;
@@ -50,11 +50,11 @@ protected:
 	virtual void BeginPlay() override;
 	
 	void tickVision();  // enemy look for player
-	float deltaTimeVision = 0.5;
+	float deltaTimeVision = 0.20;
 	FTimerHandle visionTimerHandle;
 	
 	float attackReach = 40.;
-	float attackTime = 1.5;  // time it takes to complete attack from attack initiation
+	float attackTime = 0.75;  // time it takes to complete attack from attack initiation
 	FTimerHandle attackTimerHandle;
 	
 public:	

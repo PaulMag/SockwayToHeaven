@@ -16,7 +16,7 @@ void ACatAIController::BeginPlay()
 	playerPawn = Cast<ABunnyCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
 	pawn = Cast<AEnemyCat>(GetPawn());
 	pawn->controller = this;
-	paceToRandomPoint();
+	takeAction();
 }
 
 void ACatAIController::Tick(float DeltaTime)

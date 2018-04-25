@@ -13,6 +13,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "AreaTrigger.h"
+#include "BunnyGameInstance.h"
 
 
 // Sets default values
@@ -24,29 +26,87 @@ ABunnyCharacter::ABunnyCharacter()
 	GetCapsuleComponent()->InitCapsuleSize(24.f, 24.0f);
 	//GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ABunnyCharacter::BeginOverlap);
 
-	BaseTurnRate = 45.f;
-	BaseLookUpRate = 45.f;
-
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
 	OurVisibleComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("OurVisibleComponent"));
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
-	GetCharacterMovement()->GravityScale = 1.0f;
-	GetCharacterMovement()->AirControl = 0.25f;
-	GetCharacterMovement()->MaxWalkSpeed = 140.0f;
-	GetCharacterMovement()->JumpZVelocity = 280.0f;
-	GetCharacterMovement()->MaxAcceleration = 56.0f;
-	GetCharacterMovement()->BrakingDecelerationWalking = 56.0f;
+	GetCharacterMovement()->GravityScale = DefaultGravityScale;
+	GetCharacterMovement()->AirControl = DefaultAirControl;
+	GetCharacterMovement()->MaxWalkSpeed = DefaultWalkSpeed;
+	GetCharacterMovement()->JumpZVelocity = DefaultJumpSpeed;
+	GetCharacterMovement()->MaxAcceleration = DefaultAcceleration;
+	GetCharacterMovement()->BrakingDecelerationWalking = DefaultDecelaration;
 }
 
 // Called when the game starts or when spawned
 void ABunnyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
+	UWorld* TheWorld = GetWorld();
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	FString CurrentLevel = TheWorld->GetMapName();		//Get the name of the level the player is currently playing
+
+	TArray<AActor*> foundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemyCat::StaticClass(), foundActors);
+	enemyPawn = Cast<AEnemyCat>(foundActors[0]);
+
+		if (CurrentLevel == "BunnyTutorialMap")			//Set up to handle things regardless of how player found their way to the level
+		{
+			bool bCanClimb = false;
+			bool bCanGlide = false;
+			bool bCanScare = false;
+			UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
+			if (BGI)
+			{
+				BGI->bCanClimb = false;
+				BGI->bCanGlide = false;
+				BGI->bCanScare = false;
+			}
+		}
+		else if (CurrentLevel == "Level1")
+		{
+			bool bCanClimb = false;
+			bool bCanGlide = false;
+			bool bCanScare = false;
+			UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
+			if (BGI)
+			{
+				BGI->bCanClimb = false;
+				BGI->bCanGlide = false;
+				BGI->bCanScare = false;
+			}
+		}
+		else if (CurrentLevel == "Level2")
+		{
+			bool bCanClimb = true;
+			bool bCanGlide = false;
+			bool bCanScare = false;
+			UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
+			if (BGI)
+			{
+				BGI->bCanClimb = true;
+				BGI->bCanGlide = false;
+				BGI->bCanScare = false;
+			}
+		}
+	UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
+	if (BGI)					
+	{
+		if (BGI->bCanClimb)			//If the player has gained an ability, the game instance is also made aware and stores the progress
+			bCanClimb = true;
+	}
+	if (BGI)
+	{
+		if (BGI->bCanGlide)
+			bCanGlide = true;
+	}
+	if (BGI)
+	{
+		if (BGI->bCanScare)
+			bCanScare = true;
+	}
 }
 
 // Called every frame
@@ -58,14 +118,16 @@ void ABunnyCharacter::Tick(float DeltaTime)
 	lineTraceStart = GetActorLocation();
 	lineTraceRotation = GetActorRotation();
 	lineTraceEnd = lineTraceStart + lineTraceRotation.Vector() * climbReach;
+	/*
 	DrawDebugLine(  // Show facing direction of character
 		GetWorld(),
 		lineTraceStart,  // from
 		lineTraceEnd,    // to
 		FColor(255, 0, 128),
 		false,
-		0, 0, 10
+		0, 0, 2
 	);
+	*/
 	GetWorld()->LineTraceSingleByObjectType(
 		lineTraceHit,  // output
 		lineTraceStart,
@@ -82,8 +144,8 @@ void ABunnyCharacter::Tick(float DeltaTime)
 			FVector impactNormalXY = lineTraceHit.ImpactNormal;
 			impactNormalXY.Z = 0;  // ignore Z-component of impact normal
 			SetActorLocation(lineTraceHit.ImpactPoint + impactNormalXY * climbDistance, true);
-			FRotator newDirection = (-lineTraceHit.ImpactNormal).ToOrientationRotator();
-			GetController()->SetControlRotation(newDirection);
+			FRotator newDirection = (-impactNormalXY).ToOrientationRotator();
+			SetActorRotation(newDirection);
 		}
 		else  // No longer on the wall.
 		{
@@ -114,6 +176,35 @@ void ABunnyCharacter::Tick(float DeltaTime)
 			stopVaulting();
 		}
 	}
+
+	if (bIsGliding == true)
+	{
+		if (GetCharacterMovement()->Velocity.Z < 0) //Only glide if falling
+		{
+			Glide();
+		}
+		else if (GetCharacterMovement()->Velocity.Z > 0) //If moving up (from jump, for instance, stop movement and start gliding)
+		{
+			GetCharacterMovement()->Velocity.Z = 0;
+			Glide();
+		}
+		else if (GetCharacterMovement()->Velocity.Z == 0)	//Do not glide if player is not falling / in the air
+		{
+			StopGliding();
+		}
+	}
+}
+
+void ABunnyCharacter::Death()		//Function that can be run for the player character if it encoutners something that kills it
+{
+	UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
+	if (BGI)
+	{
+		UWorld* TheWorld = GetWorld();
+		FString CurrentLevel = TheWorld->GetMapName();
+		BGI->CurrentLevel = CurrentLevel;
+	}
+	UGameplayStatics::OpenLevel(GetWorld(), "DeathMenu");
 }
 
 // Called to bind functionality to input
@@ -123,24 +214,26 @@ void ABunnyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 	// Set up gameplay key bindings
 	check(PlayerInputComponent);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);					//Space
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-	PlayerInputComponent->BindAction("Climb", IE_Pressed, this, &ABunnyCharacter::toggleClimb);
-
-	PlayerInputComponent->BindAxis("MoveForward", this, &ABunnyCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &ABunnyCharacter::MoveRight);
-
-	//Mouse+Keyboard
-	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	//Joystick
-	PlayerInputComponent->BindAxis("TurnRate", this, &ABunnyCharacter::TurnAtRate);
-	//Mouse+Keyboard
-	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-	//Joystick
-	PlayerInputComponent->BindAxis("LookUpRate", this, &ABunnyCharacter::LookUpAtRate);
-
-	PlayerInputComponent->BindAction("Glide", IE_Pressed, this, &ABunnyCharacter::Glide);
+	PlayerInputComponent->BindAction("Climb", IE_Pressed, this, &ABunnyCharacter::toggleClimb);		//C
+	PlayerInputComponent->BindAction("Glide", IE_Pressed, this, &ABunnyCharacter::Glide);			//Shift
 	PlayerInputComponent->BindAction("Glide", IE_Released, this, &ABunnyCharacter::StopGliding);
+	PlayerInputComponent->BindAction("Scare", IE_Pressed, this, &ABunnyCharacter::scare);			//Ctrl
+	PlayerInputComponent->BindAction("Menu", IE_Pressed, this, &ABunnyCharacter::Menu);				//Esc
+
+	PlayerInputComponent->BindAxis("MoveForward", this, &ABunnyCharacter::MoveForward);				//WS | Up,Down
+	PlayerInputComponent->BindAxis("MoveRight", this, &ABunnyCharacter::MoveRight);					//AD | Left,Right
+
+	//Mouse+Keyboard
+	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);					//For future implementations
+	//Joystick
+	PlayerInputComponent->BindAxis("TurnRate", this, &ABunnyCharacter::TurnAtRate);					//For future implementations
+	//Mouse+Keyboard
+	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);				//For future implementations
+	//Joystick
+	PlayerInputComponent->BindAxis("LookUpRate", this, &ABunnyCharacter::LookUpAtRate);				//For future implementations
+
 }
 
 void ABunnyCharacter::TurnAtRate(float Rate)
@@ -169,9 +262,6 @@ void ABunnyCharacter::MoveForward(float Value)
 		else  // is walking
 		{
 			AddMovementInput(FVector(1, 0, 0), Value);
-			FRotator newDirection = FRotator(0, 0, 0);
-			newDirection.Yaw = GetCharacterMovement()->Velocity.ToOrientationRotator().Yaw;
-			GetController()->SetControlRotation(newDirection);
 		}
 	}
 }
@@ -193,14 +283,11 @@ void ABunnyCharacter::MoveRight(float Value)
 		else  // is walking
 		{
 			AddMovementInput(FVector(0, 1, 0), Value);
-			FRotator newDirection = FRotator(0, 0, 0);
-			newDirection.Yaw = GetCharacterMovement()->Velocity.ToOrientationRotator().Yaw;
-			GetController()->SetControlRotation(newDirection);
 		}
 	}
 }
 
-/*
+
 void ABunnyCharacter::BeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	AActor* OtherActor,
 	UPrimitiveComponent* OtherComp,
@@ -208,16 +295,100 @@ void ABunnyCharacter::BeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	bool bFromSweep,
 	const FHitResult &SweepResult)
 {
-	if (bCanClimb == false)
+	FString name = OtherActor->GetActorLabel();		//Retrieve the name/label of the object that was overlapped
+	AAreaTrigger *OverlappedActor = dynamic_cast<AAreaTrigger*>(OtherActor);
+
+	if (name == "Caterpillar")		//Treat result of overlapping according to what was encounterd
 	{
-		bCanClimb = true;
+		UE_LOG(LogTemp, Warning, TEXT("Caterpillar Encountered"));	//Overlaps the Caterpillar
+		bCanClimb = true;											//Gives player the ability to climb
+		UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
+		if (BGI)
+		{
+			BGI->bCanClimb = true;									//Updates the game instance to also know the player can climb
+		}
+		if (OverlappedActor->GetbIsDestructible())
+		{
+			OtherActor->Destroy();									//Destroys the Caterpillar object
+		}
 	}
-	else if ((bCanClimb == true) && (bCanGlide == false))
+	else if (name == "Squirrel")									//As for Caterpillar, but with Glide
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Squirrel Encountered"));
 		bCanGlide = true;
+		UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
+		if (BGI)
+		{
+			BGI->bCanGlide = true;
+		}
+		if (OverlappedActor->GetbIsDestructible())
+		{
+			OtherActor->Destroy();
+		}
+	}
+	else if (name == "Skunk")										//As for Caterpillar, but with Scare
+	{
+		bCanScare = true;
+		UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
+		if (BGI)
+		{
+		BGI->bCanScare = true;
+		}
+		if (OverlappedActor->GetbIsDestructible())
+		{
+			OtherActor->Destroy();
+		}
+	}
+	else if (name == "End")											//Levels are designed to have only one "end" point
+	{
+		UE_LOG(LogTemp, Warning, TEXT("End Encountered"));
+		if (OverlappedActor->GetbIsDestructible())
+		{
+			OtherActor->Destroy();									//Removes the object
+		}
+		SwapLevel();												//Figures out where to send the player next
+	}
+	/*else if (name == "Death")										//If overlapping an object named death, would "kill" player and show death screen
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Death Encountered"));
+		if (OverlappedActor->GetbIsDestructible())
+		{
+			OtherActor->Destroy();
+		}
+		Death();
+	}
+	*/
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Nothing Recognizable Encountered"));		
 	}
 }
-*/
+
+void ABunnyCharacter::SwapLevel()							//Loads player into levels
+{
+	UWorld* TheWorld = GetWorld();
+
+	FString CurrentLevel = TheWorld->GetMapName();			//Stores which level the player is currently in
+
+	if (CurrentLevel == "BunnyTutorialMap")					//Tests which level the player is in
+	{
+		UGameplayStatics::OpenLevel(GetWorld(), "Level1");	//And sends the player to the appropriate level
+
+	}
+	else if (CurrentLevel == "Level1")						//If already on Level 1
+	{
+		UGameplayStatics::OpenLevel(GetWorld(), "Level2");	//Level 2 is next
+	}
+	else if (CurrentLevel == "Level2")						//If already on Level 2
+	{
+		UGameplayStatics::OpenLevel(GetWorld(), "Main Menu");	//Game is over and palyer returns on Main meny
+	}
+	else
+	{
+		UGameplayStatics::OpenLevel(GetWorld(), "Main Menu");	//If player ended an unknown map, send them to main menu
+	}
+}
+
 void ABunnyCharacter::toggleClimb()
 {
 	if (!bCanClimb)
@@ -277,20 +448,47 @@ void ABunnyCharacter::stopVaulting()
 
 void ABunnyCharacter::Glide()
 {
-	if (bCanGlide == true)
+	if (bCanGlide == true)			//If player has the ability to glide
 	{
-		bIsGliding = true;
-		GetCharacterMovement()->GravityScale = 0.5f;
-		GetCharacterMovement()->AirControl = 1.0f;
+		if (bIsGliding != true)		//If player is not already gliding
+		{
+			bIsGliding = true;		//Set the state that the player is gliding
+		}
+		GetCharacterMovement()->GravityScale = GlideGravityScale;	//And assign the glide values to gravity and air control
+		GetCharacterMovement()->AirControl = GlideAirControl;
 	}
 }
 
 void ABunnyCharacter::StopGliding()
 {
-	if (bCanGlide == true)
+	if (bCanGlide == true)			//If player has the ability to glide
 	{
-		GetCharacterMovement()->GravityScale = 1.0f;
-		GetCharacterMovement()->AirControl = 0.25f;
-		bIsGliding = false;
+		if (bIsGliding == true)		//If player is gliding
+		{
+			bIsGliding = false;		//The player is no longer gliding
+		}
+		GetCharacterMovement()->GravityScale = DefaultGravityScale;	//And assigns the default alues to gravity and air control
+		GetCharacterMovement()->AirControl = DefaultAirControl;
 	}
+}
+
+void ABunnyCharacter::scare()
+{
+	if (bCanScare)
+	{
+		enemyPawn->addSpook(3.0, GetActorLocation());
+	}
+}
+
+void ABunnyCharacter::Menu()
+/* Handles if the player pressed "escape" to enter the main menu. */
+{
+	UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
+	if (BGI)
+	{
+		UWorld* TheWorld = GetWorld();
+		FString CurrentLevel = TheWorld->GetMapName();	//Stores what map the player was on before they enter the main menu
+		BGI->CurrentLevel = CurrentLevel;				//Stores that name in the game instance so it will carry over map loads
+	}
+	UGameplayStatics::OpenLevel(GetWorld(), "MainMenu");	//Then loads the main menu
 }

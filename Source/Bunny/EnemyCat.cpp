@@ -140,6 +140,7 @@ void AEnemyCat::tickVision()
 	visionTraceStart += visionTraceNormal * 30;  // buffer to net hit self with trace
 	float angle = acos( visionTraceNormal.DotProduct(visionTraceNormal, GetActorForwardVector()) / (visionTraceNormal.Size() * GetActorForwardVector().Size()) ) / PI * 180;
 	
+	/*
 	DrawDebugLine(
 		GetWorld(),
 		visionTraceStart,  // from
@@ -148,6 +149,7 @@ void AEnemyCat::tickVision()
 		false,
 		0, 0, 2
 	);
+	*/
 	GetWorld()->LineTraceSingleByChannel(
 		visionTraceHit,  // output
 		visionTraceStart,

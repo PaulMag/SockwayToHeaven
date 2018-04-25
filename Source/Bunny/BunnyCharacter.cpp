@@ -118,6 +118,7 @@ void ABunnyCharacter::Tick(float DeltaTime)
 	lineTraceStart = GetActorLocation();
 	lineTraceRotation = GetActorRotation();
 	lineTraceEnd = lineTraceStart + lineTraceRotation.Vector() * climbReach;
+	/*
 	DrawDebugLine(  // Show facing direction of character
 		GetWorld(),
 		lineTraceStart,  // from
@@ -126,6 +127,7 @@ void ABunnyCharacter::Tick(float DeltaTime)
 		false,
 		0, 0, 2
 	);
+	*/
 	GetWorld()->LineTraceSingleByObjectType(
 		lineTraceHit,  // output
 		lineTraceStart,
@@ -142,7 +144,7 @@ void ABunnyCharacter::Tick(float DeltaTime)
 			FVector impactNormalXY = lineTraceHit.ImpactNormal;
 			impactNormalXY.Z = 0;  // ignore Z-component of impact normal
 			SetActorLocation(lineTraceHit.ImpactPoint + impactNormalXY * climbDistance, true);
-			FRotator newDirection = (-lineTraceHit.ImpactNormal).ToOrientationRotator();
+			FRotator newDirection = (-impactNormalXY).ToOrientationRotator();
 			SetActorRotation(newDirection);
 		}
 		else  // No longer on the wall.

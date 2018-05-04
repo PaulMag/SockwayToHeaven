@@ -13,6 +13,14 @@ ACatAIController::ACatAIController()
 void ACatAIController::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	TArray<AActor*> foundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APatrolPoint::StaticClass(), foundActors);
+	for (int i=0; i<foundActors.Num(); i++)
+	{
+		patrolPoints.Add(Cast<APatrolPoint>(foundActors[i]));
+	}
+
 	playerPawn = Cast<ABunnyCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
 	pawn = Cast<AEnemyCat>(GetPawn());
 	pawn->controller = this;
@@ -67,13 +75,34 @@ void ACatAIController::wait()
 void ACatAIController::paceToRandomPoint()
 /* Move to a random nearby position. */
 {
-	float direction = FMath::RandRange(0.f, 2*PI);
-	float distance = FMath::RandRange(100.f, 300.f);
-	target.X = cos(direction) * distance;
-	target.Y = sin(direction) * distance;
-	target += pawn->GetActorLocation();
-	UE_LOG(LogTemp, Warning, TEXT("CAT: Move started to (%f, %f)"), target.X, target.Y);
-	MoveToLocation(target, 5);
+choosePatrolPoint:
+	try
+	{
+		if (patrolPoints.Num() < 2)
+		{
+			throw 1;
+		}
+		APatrolPoint* patrolPointNew = patrolPoints[FMath::RandRange(0, patrolPoints.Num() - 1)];  // pick random patrol point
+		if (patrolPointNew == patrolpointCurrent)  // pick new one if this was the same as last time
+			goto choosePatrolPoint;
+		patrolpointCurrent = patrolPointNew;
+		UE_LOG(LogTemp, Warning, TEXT("CAT: Move started to (%f, %f)"), patrolpointCurrent->GetActorLocation().X, patrolpointCurrent->GetActorLocation().Y);
+		MoveToActor(patrolpointCurrent, 15);
+
+	}
+	catch (int)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Place at least two PatrolPoint_BP in the level for the EnemyCat AI to work properly. Using random movement instead."))
+		float direction = FMath::RandRange(0.f, 2*PI);
+		float distance = FMath::RandRange(100.f, 300.f);
+		target.X = cos(direction) * distance;
+		target.Y = sin(direction) * distance;
+		target += pawn->GetActorLocation();
+		UE_LOG(LogTemp, Warning, TEXT("CAT: Move started to (%f, %f)"), target.X, target.Y);
+		MoveToLocation(target, 5);
+		/*
+		*/
+	}
 }
 
 void ACatAIController::paceToPlayer()

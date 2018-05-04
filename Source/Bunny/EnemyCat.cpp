@@ -174,7 +174,7 @@ void AEnemyCat::tickVision()
 		// visionTrace should always hit the player pawn if nothing else is blocking
 		UE_LOG(LogTemp, Error, TEXT("Not hitting anything, angle=%f"), angle);
 	}
-	UE_LOG(LogTemp, Warning, TEXT("Alert level: %f"), alert);
+	//UE_LOG(LogTemp, Warning, TEXT("Alert level: %f"), alert);
 
 	int newAlertMode;
 	if (alert >= alertChasing)

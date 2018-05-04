@@ -50,7 +50,10 @@ void ABunnyCharacter::BeginPlay()
 
 	TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemyCat::StaticClass(), foundActors);
-	enemyPawn = Cast<AEnemyCat>(foundActors[0]);
+	for (int i=0; i<foundActors.Num(); i++)
+	{
+		enemyPawns.Add(Cast<AEnemyCat>(foundActors[i]));
+	}
 
 		if (CurrentLevel == "BunnyTutorialMap")			//Set up to handle things regardless of how player found their way to the level
 		{
@@ -113,6 +116,11 @@ void ABunnyCharacter::BeginPlay()
 void ABunnyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	// Count scare cooldown
+	scareCooldown -= DeltaTime;
+	if (scareCooldown < 0)
+		scareCooldown = 0;
 	
 	// Make linetrace to see if there is a climbable wall
 	lineTraceStart = GetActorLocation();
@@ -473,10 +481,26 @@ void ABunnyCharacter::StopGliding()
 }
 
 void ABunnyCharacter::scare()
+/* Scare away every enemy within certain distance.
+ * The scare lasts longer (more "spook") the closer the enemy is, maximum of 5 seconds.
+ */
 {
-	if (bCanScare)
+	if (bCanScare && scareCooldown <= 0)
 	{
-		enemyPawn->addSpook(3.0, GetActorLocation());
+		for (int i=0; i<enemyPawns.Num(); i++)
+		{
+			float distance = (GetActorLocation() - enemyPawns[i]->GetActorLocation()).Size();
+			if (distance < scareRangeFull)
+			{
+				enemyPawns[i]->addSpook(spookAmountFull, GetActorLocation());
+			}
+			else if (distance < scareRangeMax)
+			{
+				float spookAmount = (scareRangeMax - distance) / (scareRangeMax - scareRangeFull) * spookAmountFull;
+				enemyPawns[i]->addSpook(spookAmount, GetActorLocation());
+			}
+		}
+		scareCooldown = scareCooldownMax;
 	}
 }
 

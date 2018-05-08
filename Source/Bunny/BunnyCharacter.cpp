@@ -421,6 +421,7 @@ void ABunnyCharacter::startClimbing()
 	bIsClimbing = true;
 	GetCharacterMovement()->MovementMode = MOVE_Flying;
 	GetCharacterMovement()->Velocity = FVector(0, 0, 0);  // Stop any falling movement when grabbing.
+	SetActorEnableCollision(false);  // Allows character to be close to wall while climbing.
 	UE_LOG(LogTemp, Warning, TEXT("Climbing ON"));
 }
 
@@ -428,6 +429,7 @@ void ABunnyCharacter::stopClimbing()
 {
 	bIsClimbing = false;  // stop climbing
 	GetCharacterMovement()->MovementMode = MOVE_Walking;
+	SetActorEnableCollision(true);
 	UE_LOG(LogTemp, Warning, TEXT("Climbing OFF"));
 }
 

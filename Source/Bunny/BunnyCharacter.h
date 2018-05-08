@@ -29,10 +29,10 @@ protected:
 
 	float climbSpeedRatio = 0.5;
 	float climbReach = 50.;  // Max distance to wall to start climbing
-	float climbDistance = 30.;  // Distance from wall while climbing.
+	float climbDistance = 11.;  // Distance from wall while climbing.
 	bool bIsVaulting = false;
-	float vaultHeight = 30;
-	float vaultDuration = 0.5;  // How many seconds the vault movement takes
+	float vaultHeight = 20;
+	float vaultDuration = 0.4;  // How many seconds the vault movement takes
 	float vaultTimeRemaining;  // Where in the vault movement the character is
 
 	float scareCooldownMax = 30.;  // cooldown between each use of scare

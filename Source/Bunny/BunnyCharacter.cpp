@@ -28,8 +28,6 @@ ABunnyCharacter::ABunnyCharacter()
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
-	OurVisibleComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("OurVisibleComponent"));
-
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
 	GetCharacterMovement()->GravityScale = DefaultGravityScale;

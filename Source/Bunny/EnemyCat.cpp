@@ -30,10 +30,6 @@ float AEnemyCat::getAttackReach()
 {
 	return attackReach;
 }
-float AEnemyCat::getAttackTime()
-{
-	return attackTime;
-}
 bool AEnemyCat::isInAttackRange()
 {
 	return (GetActorLocation() - playerPawn->GetActorLocation()).Size() <= attackReach;
@@ -41,23 +37,28 @@ bool AEnemyCat::isInAttackRange()
 
 void AEnemyCat::attackBegin()
 {
-	GetWorldTimerManager().SetTimer(attackTimerHandle, this, &AEnemyCat::attackEnd, attackTime, false);
-
+	bIsAttacking = true;
+	GetWorldTimerManager().SetTimer(attackTimerHandle, this, &AEnemyCat::attackPerform, attackPerformTime, false);
 }
 
-void AEnemyCat::attackEnd()
+void AEnemyCat::attackPerform()
 {
 	if (isInAttackRange())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ATTACK: KILLED player"));
 		playerPawn->Death();
-		controller->takeAction();
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ATTACK: missed player"));
-		controller->takeAction();
 	}
+	GetWorldTimerManager().SetTimer(attackTimerHandle, this, &AEnemyCat::attackEnd, attackRecoveryTime, false);
+}
+
+void AEnemyCat::attackEnd()
+{
+	bIsAttacking = false;
+	controller->takeAction();
 }
 
 void AEnemyCat::addAlert(float amount)

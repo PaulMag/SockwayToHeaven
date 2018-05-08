@@ -131,8 +131,6 @@ public:
 
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	*/
-	UPROPERTY(EditAnywhere)
-		USkeletalMeshComponent* OurVisibleComponent;
 
 	USceneComponent* CollisionCapsule = nullptr;
 };

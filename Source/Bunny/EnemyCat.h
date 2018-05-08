@@ -20,7 +20,7 @@ protected:
 	enum { idle = 0, suspicious = 1, chasing = 2 };
 	enum { calm = 0, spooked = 1 };
 
-	float maxWalkSpeed = 180.;
+	float maxWalkSpeed = 220.;
 	TArray<float> walkSpeedRatios = { 0.5, 0.75, 1.00 };
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
@@ -57,11 +57,11 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
 	bool bIsAttacking = false;
-	float attackReach = 40.;
+	float attackReach = 85.;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
-	float attackPerformTime = 0.37;  // time it takes to perform attack from attack initiation
+	float attackPerformTime = 0.37 * 0.75;  // time it takes to perform attack from attack initiation
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
-	float attackRecoveryTime = 0.23;  // time it takes to recover from attack from attack completed
+	float attackRecoveryTime = 0.23 * 0.75;  // time it takes to recover from attack from attack completed
 	FTimerHandle attackTimerHandle;
 	
 public:	

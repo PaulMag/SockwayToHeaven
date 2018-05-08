@@ -138,7 +138,7 @@ void AEnemyCat::tickVision()
 	visionTraceEnd = playerPawn->GetActorLocation() + FVector(0, 0, -5);
 	visionTraceNormal = (visionTraceEnd - visionTraceStart);
 	visionTraceNormal /= (visionTraceEnd - visionTraceStart).Size();
-	visionTraceStart += visionTraceNormal * 30;  // buffer to net hit self with trace
+	visionTraceStart += visionTraceNormal * 60;  // buffer to not hit self with trace
 	float angle = acos( visionTraceNormal.DotProduct(visionTraceNormal, GetActorForwardVector()) / (visionTraceNormal.Size() * GetActorForwardVector().Size()) ) / PI * 180;
 	
 	/*
@@ -160,7 +160,7 @@ void AEnemyCat::tickVision()
 	
 	if (visionTraceHit.GetActor())
 	{
-		if (visionTraceHit.GetActor() == playerPawn && angle <= 75)
+		if (visionTraceHit.GetActor() == playerPawn && angle <= 85)
 		{
 			addAlert(alertIncrease * deltaTimeVision);
 			//UE_LOG(LogTemp, Warning, TEXT("I SEE YOU, %s!, angle=%f"), *visionTraceHit.GetActor()->GetName(), angle);

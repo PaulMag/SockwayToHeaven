@@ -230,9 +230,18 @@ void ABunnyCharacter::death()
 		return;
 	bIsDead = true;
 	GetWorldTimerManager().SetTimer(timerHandle, this, &ABunnyCharacter::deathMenu, deathDuration, false);
+	
+	GetCharacterMovement()->MaxWalkSpeed = 0;
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+	bCanJump = false;
 	bIsClimbing = false;
-	bIsVaulting = false;
-	bIsVaulting = false;
+	bCanClimb = false;
+	if (bIsVaulting)
+		stopVaulting();
+	if (bIsGliding)
+		StopGliding();
+	bCanGlide = false;
+	bCanScare = false;
 }
 
 // Called to bind functionality to input
@@ -483,7 +492,7 @@ void ABunnyCharacter::Jump()
 	{
 		Glide();
 	}
-	else  // Normal Jump if not falling
+	else if (bCanJump)  // Normal Jump if not falling
 	{
 		bIsJumping = true;
 		ACharacter::Jump();

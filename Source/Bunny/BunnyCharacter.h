@@ -134,6 +134,9 @@ protected:
 		bool bIsClimbing = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Variables)
+		bool bCanJump = true;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Variables)
 		bool bCanGlide = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Variables)

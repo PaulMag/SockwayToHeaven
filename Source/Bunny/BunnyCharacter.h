@@ -89,6 +89,7 @@ protected:
 	void TurnAtRate(float Rate);
 	void LookUpAtRate(float Rate);
 	void Jump();
+	void StopJumping();
 	void Glide();
 	void StopGliding();
 	void scare();

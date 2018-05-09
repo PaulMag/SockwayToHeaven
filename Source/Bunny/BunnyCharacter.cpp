@@ -243,7 +243,7 @@ void ABunnyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	// Set up gameplay key bindings
 	check(PlayerInputComponent);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ABunnyCharacter::Jump);					//Space
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ABunnyCharacter::StopJumping);
 	PlayerInputComponent->BindAction("Climb", IE_Pressed, this, &ABunnyCharacter::toggleClimb);		//C
 	PlayerInputComponent->BindAction("Glide", IE_Pressed, this, &ABunnyCharacter::Glide);			//Shift
 	PlayerInputComponent->BindAction("Glide", IE_Released, this, &ABunnyCharacter::StopGliding);
@@ -477,9 +477,25 @@ void ABunnyCharacter::stopVaulting()
 }
 
 void ABunnyCharacter::Jump()
+/* If you press Jump while in the air you activate Glide. */
 {
-	bIsJumping = true;
-	ACharacter::Jump();
+	if (GetCharacterMovement()->IsFalling())  // Glide
+	{
+		Glide();
+	}
+	else  // Normal Jump if not falling
+	{
+		bIsJumping = true;
+		ACharacter::Jump();
+	}
+}
+
+void ABunnyCharacter::StopJumping()
+{
+	if (GetCharacterMovement()->IsFalling())
+	{
+		StopGliding();
+	}
 }
 
 void ABunnyCharacter::Glide()

@@ -47,16 +47,37 @@ protected:
 	void startVaulting();
 	void stopVaulting();
 
-	UFUNCTION()
-		void BeginOverlap(UPrimitiveComponent* OverlappedComponent,
-		AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex,
-		bool bFromSweep,
-		const FHitResult &SweepResult);
+	// Find movement speed in z-direction for animation purposes
+	float zCurrent = 0.;
+	float zPrevious = 0.;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
+		float zDelta = 0.;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
+		float zSpeed = 0.;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
+		bool bIsDead = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
+		float healthMax = 1;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
+		float health = healthMax;
+	float deathDuration = 3.5;  // how long to play death animation before going to menu
+	FTimerHandle timerHandle;
 
 	UFUNCTION()
-		void Menu();
+		void BeginOverlap(
+			UPrimitiveComponent* OverlappedComponent,
+			AActor* OtherActor,
+			UPrimitiveComponent* OtherComp,
+			int32 OtherBodyIndex,
+			bool bFromSweep,
+			const FHitResult &SweepResult
+		);
+
+	UFUNCTION()
+		void menu();
+	UFUNCTION()
+		void deathMenu();
 
 	UFUNCTION()
 		void SwapLevel();
@@ -67,6 +88,7 @@ protected:
 	void MoveRight(float Value);
 	void TurnAtRate(float Rate);
 	void LookUpAtRate(float Rate);
+	void Jump();
 	void Glide();
 	void StopGliding();
 	void scare();
@@ -101,6 +123,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
 		float DefaultDecelaration = 0.0f;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Variables)
+		bool bIsJumping = false;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
 		bool bIsGliding = false;
 
@@ -124,7 +149,8 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
-	void Death();
+	void takeDamage(float damage=1);
+	void death();
 
 	/*
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

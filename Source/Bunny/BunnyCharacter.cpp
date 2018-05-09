@@ -119,7 +119,17 @@ void ABunnyCharacter::Tick(float DeltaTime)
 	scareCooldown -= DeltaTime;
 	if (scareCooldown < 0)
 		scareCooldown = 0;
-	
+
+	// Find movement speed in z-direction for animation purposes
+	zPrevious = zCurrent;
+	zCurrent = GetActorLocation().Z;
+	zDelta = zCurrent - zPrevious;
+	zSpeed =  zDelta / DeltaTime;
+	if (zSpeed < 0)
+	{
+		bIsJumping = false;
+	}
+
 	// Make linetrace to see if there is a climbable wall
 	lineTraceStart = GetActorLocation();
 	lineTraceRotation = GetActorRotation();
@@ -201,16 +211,28 @@ void ABunnyCharacter::Tick(float DeltaTime)
 	}
 }
 
-void ABunnyCharacter::Death()		//Function that can be run for the player character if it encoutners something that kills it
+void ABunnyCharacter::takeDamage(float damage)
 {
-	UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
-	if (BGI)
+	health -= damage;
+	if (health <= 0)
 	{
-		UWorld* TheWorld = GetWorld();
-		FString CurrentLevel = TheWorld->GetMapName();
-		BGI->CurrentLevel = CurrentLevel;
+		health = 0;
+		death();
 	}
-	UGameplayStatics::OpenLevel(GetWorld(), "DeathMenu");
+}
+
+void ABunnyCharacter::death()
+/* Run this function when BunnyCharacter dies.
+ * Deativates controls, plays death animation, and go to deathMenu after a few seconds
+ */
+{
+	if (bIsDead)  // Can't die again.
+		return;
+	bIsDead = true;
+	GetWorldTimerManager().SetTimer(timerHandle, this, &ABunnyCharacter::deathMenu, deathDuration, false);
+	bIsClimbing = false;
+	bIsVaulting = false;
+	bIsVaulting = false;
 }
 
 // Called to bind functionality to input
@@ -220,13 +242,13 @@ void ABunnyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 	// Set up gameplay key bindings
 	check(PlayerInputComponent);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);					//Space
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ABunnyCharacter::Jump);					//Space
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	PlayerInputComponent->BindAction("Climb", IE_Pressed, this, &ABunnyCharacter::toggleClimb);		//C
 	PlayerInputComponent->BindAction("Glide", IE_Pressed, this, &ABunnyCharacter::Glide);			//Shift
 	PlayerInputComponent->BindAction("Glide", IE_Released, this, &ABunnyCharacter::StopGliding);
 	PlayerInputComponent->BindAction("Scare", IE_Pressed, this, &ABunnyCharacter::scare);			//Ctrl
-	PlayerInputComponent->BindAction("Menu", IE_Pressed, this, &ABunnyCharacter::Menu);				//Esc
+	PlayerInputComponent->BindAction("Menu", IE_Pressed, this, &ABunnyCharacter::menu);				//Esc
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ABunnyCharacter::MoveForward);				//WS | Up,Down
 	PlayerInputComponent->BindAxis("MoveRight", this, &ABunnyCharacter::MoveRight);					//AD | Left,Right
@@ -454,6 +476,12 @@ void ABunnyCharacter::stopVaulting()
 	UE_LOG(LogTemp, Warning, TEXT("Vaulting OFF"));
 }
 
+void ABunnyCharacter::Jump()
+{
+	bIsJumping = true;
+	ACharacter::Jump();
+}
+
 void ABunnyCharacter::Glide()
 {
 	if (bCanGlide == true)			//If player has the ability to glide
@@ -504,7 +532,7 @@ void ABunnyCharacter::scare()
 	}
 }
 
-void ABunnyCharacter::Menu()
+void ABunnyCharacter::menu()
 /* Handles if the player pressed "escape" to enter the main menu. */
 {
 	UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
@@ -515,4 +543,17 @@ void ABunnyCharacter::Menu()
 		BGI->CurrentLevel = CurrentLevel;				//Stores that name in the game instance so it will carry over map loads
 	}
 	UGameplayStatics::OpenLevel(GetWorld(), "MainMenu");	//Then loads the main menu
+}
+
+void ABunnyCharacter::deathMenu()
+/* Goes to the "You died" menu after death animation has been played. */
+{
+	UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
+	if (BGI)
+	{
+		UWorld* TheWorld = GetWorld();
+		FString CurrentLevel = TheWorld->GetMapName();
+		BGI->CurrentLevel = CurrentLevel;
+	}
+	UGameplayStatics::OpenLevel(GetWorld(), "DeathMenu");
 }

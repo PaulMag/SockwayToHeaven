@@ -76,12 +76,8 @@ void ACatAIController::paceToRandomPoint()
 /* Move to a random nearby position. */
 {
 choosePatrolPoint:
-	try
+	if (patrolPoints.Num() < 2)
 	{
-		if (patrolPoints.Num() < 2)
-		{
-			throw 1;
-		}
 		APatrolPoint* patrolPointNew = patrolPoints[FMath::RandRange(0, patrolPoints.Num() - 1)];  // pick random patrol point
 		if (patrolPointNew == patrolpointCurrent)  // pick new one if this was the same as last time
 			goto choosePatrolPoint;
@@ -90,7 +86,7 @@ choosePatrolPoint:
 		MoveToActor(patrolpointCurrent, 15);
 
 	}
-	catch (int)
+	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("Place at least two PatrolPoint_BP in the level for the EnemyCat AI to work properly. Using random movement instead."))
 		float direction = FMath::RandRange(0.f, 2*PI);
@@ -100,8 +96,6 @@ choosePatrolPoint:
 		target += pawn->GetActorLocation();
 		UE_LOG(LogTemp, Warning, TEXT("CAT: Move started to (%f, %f)"), target.X, target.Y);
 		MoveToLocation(target, 5);
-		/*
-		*/
 	}
 }
 

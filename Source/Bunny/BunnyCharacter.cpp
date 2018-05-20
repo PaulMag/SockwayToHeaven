@@ -8,12 +8,12 @@
 #include "Components/StaticMeshComponent.h"
 #include "Camera/CameraActor.h"
 #include "Components/InputComponent.h"
-#include "HeadMountedDisplayFunctionLibrary.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "AreaTrigger.h"
+#include "CheckpointBase.h"
 #include "BunnyGameInstance.h"
 
 
@@ -332,10 +332,10 @@ void ABunnyCharacter::BeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	bool bFromSweep,
 	const FHitResult &SweepResult)
 {
-	FString name = OtherActor->GetActorLabel();		//Retrieve the name/label of the object that was overlapped
+	FString effect = dynamic_cast<ACheckpointBase*>(OtherActor)->effect;  // Retrieve the effect of the object that was overlapped
 	AAreaTrigger *OverlappedActor = dynamic_cast<AAreaTrigger*>(OtherActor);
 
-	if (name == "Caterpillar")		//Treat result of overlapping according to what was encounterd
+	if (effect == "climb")		//Treat result of overlapping according to what was encounterd
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Caterpillar Encountered"));	//Overlaps the Caterpillar
 		bCanClimb = true;											//Gives player the ability to climb
@@ -346,10 +346,10 @@ void ABunnyCharacter::BeginOverlap(UPrimitiveComponent* OverlappedComponent,
 		}
 		if (OverlappedActor->GetbIsDestructible())
 		{
-			OtherActor->Destroy();									//Destroys the Caterpillar object
+			OtherActor->Destroy(); // Destroys the Caterpillar object. It is now "absorbed" into the sock.
 		}
 	}
-	else if (name == "Squirrel")									//As for Caterpillar, but with Glide
+	else if (effect == "glide")  // As for Caterpillar, but with Glide
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Squirrel Encountered"));
 		bCanGlide = true;
@@ -363,7 +363,7 @@ void ABunnyCharacter::BeginOverlap(UPrimitiveComponent* OverlappedComponent,
 			OtherActor->Destroy();
 		}
 	}
-	else if (name == "Skunk")										//As for Caterpillar, but with Scare
+	else if (effect == "scare")  // As for Caterpillar, but with Scare
 	{
 		bCanScare = true;
 		UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
@@ -376,7 +376,7 @@ void ABunnyCharacter::BeginOverlap(UPrimitiveComponent* OverlappedComponent,
 			OtherActor->Destroy();
 		}
 	}
-	else if (name == "End")											//Levels are designed to have only one "end" point
+	else if (effect == "end")  // Levels are designed to have only one "end" point
 	{
 		UE_LOG(LogTemp, Warning, TEXT("End Encountered"));
 		if (OverlappedActor->GetbIsDestructible())
@@ -385,7 +385,7 @@ void ABunnyCharacter::BeginOverlap(UPrimitiveComponent* OverlappedComponent,
 		}
 		SwapLevel();												//Figures out where to send the player next
 	}
-	/*else if (name == "Death")										//If overlapping an object named death, would "kill" player and show death screen
+	/*else if (effect == "death")										//If overlapping an object effect death, would "kill" player and show death screen
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Death Encountered"));
 		if (OverlappedActor->GetbIsDestructible())

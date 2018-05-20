@@ -78,16 +78,7 @@ void ACatAIController::paceToRandomPoint()
 choosePatrolPoint:
 	if (patrolPoints.Num() < 2)
 	{
-		APatrolPoint* patrolPointNew = patrolPoints[FMath::RandRange(0, patrolPoints.Num() - 1)];  // pick random patrol point
-		if (patrolPointNew == patrolpointCurrent)  // pick new one if this was the same as last time
-			goto choosePatrolPoint;
-		patrolpointCurrent = patrolPointNew;
-		UE_LOG(LogTemp, Warning, TEXT("CAT: Move started to (%f, %f)"), patrolpointCurrent->GetActorLocation().X, patrolpointCurrent->GetActorLocation().Y);
-		MoveToActor(patrolpointCurrent, 15);
-
-	}
-	else
-	{
+		// Would be preferable to throw error here, but Unreal does not like regular C++ try-throw-catch.
 		UE_LOG(LogTemp, Error, TEXT("Place at least two PatrolPoint_BP in the level for the EnemyCat AI to work properly. Using random movement instead."))
 		float direction = FMath::RandRange(0.f, 2*PI);
 		float distance = FMath::RandRange(100.f, 300.f);
@@ -96,6 +87,15 @@ choosePatrolPoint:
 		target += pawn->GetActorLocation();
 		UE_LOG(LogTemp, Warning, TEXT("CAT: Move started to (%f, %f)"), target.X, target.Y);
 		MoveToLocation(target, 5);
+	}
+	else
+	{
+		APatrolPoint* patrolPointNew = patrolPoints[FMath::RandRange(0, patrolPoints.Num() - 1)];  // pick random patrol point
+		if (patrolPointNew == patrolpointCurrent)  // pick new one if this was the same as last time
+			goto choosePatrolPoint;
+		patrolpointCurrent = patrolPointNew;
+		UE_LOG(LogTemp, Warning, TEXT("CAT: Move started to (%f, %f)"), patrolpointCurrent->GetActorLocation().X, patrolpointCurrent->GetActorLocation().Y);
+		MoveToActor(patrolpointCurrent, 15);
 	}
 }
 

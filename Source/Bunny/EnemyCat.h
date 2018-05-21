@@ -25,23 +25,32 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Variables)
 	float alert = 0.;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Variables)
 	float alertMin = 0.;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Variables)
 	float alertSuspicious = 1.;  // threshold for becoming suspicious
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Variables)
 	float alertChasing = 2.;  // threshold for starting to chase
 	float alertMax= 3.;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Variables)
 	float alertIncrease = 1.60;  // How much alertLevel increases per second when seen
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Variables)
 	float alertDecay = 0.25;  // How much alertLevel decreses per second when not seen
 	UFUNCTION(BlueprintCallable)
 	void addAlert(float amount);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Variables)
 	int alertMode = idle;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Variables)
 	int spookMode = calm;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Variables)
 	float spook = 0.;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Variables)
 	float spookMin = 0.;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Variables)
 	float spookSpooked = 1.;
 	float spookMax = 3.;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Variables)
 	float spookDecay = 0.40;
 	void addSpook(float amount);  // only for decay
 
@@ -59,10 +68,11 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
 	bool bIsAttacking = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Variables)
 	float attackReach = 85.;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Variables)
 	float attackPerformTime = 0.37 * 0.75;  // time it takes to perform attack from attack initiation
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Variables)
 	float attackRecoveryTime = 0.23 * 0.75;  // time it takes to recover from attack from attack completed
 	FTimerHandle attackTimerHandle;
 	

@@ -23,7 +23,7 @@ protected:
 	float maxWalkSpeed = 220.;
 	TArray<float> walkSpeedRatios = { 0.5, 0.75, 1.00 };
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Variables)
 	float alert = 0.;
 	float alertMin = 0.;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
@@ -32,10 +32,12 @@ protected:
 	float alertMax= 3.;
 	float alertIncrease = 1.60;  // How much alertLevel increases per second when seen
 	float alertDecay = 0.25;  // How much alertLevel decreses per second when not seen
+	UFUNCTION(BlueprintCallable)
 	void addAlert(float amount);
 	int alertMode = idle;
 	int spookMode = calm;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Variables)
 	float spook = 0.;
 	float spookMin = 0.;
 	float spookSpooked = 1.;
@@ -76,6 +78,7 @@ public:
 	void attackBegin();
 	void attackPerform();
 	void attackEnd();
+	UFUNCTION(BlueprintCallable)
 	void addSpook(float amount, FVector location);
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 };

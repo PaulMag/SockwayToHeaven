@@ -48,7 +48,7 @@ void ACatAIController::setAlertMode(int mode)
 }
 
 void ACatAIController::setSpookMode(int mode)
-/* Whether spooked or not and the location of the source of the spook. */
+/* Whether spooked or not. */
 {
 	spookMode = mode;
 	if (spookMode == spooked)
@@ -59,12 +59,13 @@ void ACatAIController::setSpookMode(int mode)
 }
 
 void ACatAIController::setSpookMode(int mode, FVector location)
-/* Whether spooked or not and the location of the source of the spook. */
+/* Whether spooked or not and the location of the source of the spook.
+ * location not used. Always simply flee from location of player character.
+ */
 {
 	spookMode = mode;
 	if (spookMode == spooked)
 	{
-		spookLocation = location;
 		GetWorldTimerManager().ClearTimer(moveTimerHandle);
 	}
 	takeAction();
@@ -128,6 +129,7 @@ void ACatAIController::flee()
  * This randomness prevents the cat from getting stuck in an infinite OnMoveCompleted loop when hitting a wall.
  */
 {
+	spookLocation = playerPawn->GetActorLocation();  // Simplify and always run away from player.
 	FVector directionVector = (pawn->GetActorLocation() - spookLocation) / (pawn->GetActorLocation() - spookLocation).Size();
 	float distance = FMath::RandRange(100.f, 250.f);
 	target = pawn->GetActorLocation() + directionVector * distance;

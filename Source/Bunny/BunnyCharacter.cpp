@@ -439,11 +439,12 @@ void ABunnyCharacter::SwapLevel()							//Loads player into levels
 	}
 	else if (CurrentLevel == "Level2")						//If already on Level 2
 	{
-		UGameplayStatics::OpenLevel(GetWorld(), "Main Menu");	//Game is over and palyer returns on Main meny
+		UGameplayStatics::OpenLevel(GetWorld(), "VictoryScreen");  //Game is over. Give player the victory screen.
 	}
 	else
 	{
-		UGameplayStatics::OpenLevel(GetWorld(), "Main Menu");	//If player ended an unknown map, send them to main menu
+		UE_LOG(LogTemp, Error, TEXT("Unknown level. Do not know how to handle. Default to MainMenu."))
+		UGameplayStatics::OpenLevel(GetWorld(), "Main Menu");  //If player ended an unknown map, send them to main menu
 	}
 }
 

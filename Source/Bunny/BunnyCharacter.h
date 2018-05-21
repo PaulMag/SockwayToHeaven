@@ -63,7 +63,8 @@ protected:
 		float healthMax = 3;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Variables)
 		float health = healthMax;
-	float deathDuration = 3.5;  // how long to play death animation before going to menu
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
+		float deathDuration = 3.5;  // how long to play death animation before going to menu
 	FTimerHandle timerHandle;
 
 	UFUNCTION()

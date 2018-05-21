@@ -35,7 +35,9 @@ protected:
 	float vaultDuration = 0.4;  // How many seconds the vault movement takes
 	float vaultTimeRemaining;  // Where in the vault movement the character is
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
 	float scareCooldownMax = 30.;  // cooldown between each use of scare
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
 	float scareCooldown = 0.;  // current cooldown time left
 	float spookAmountFull = 3.;  // amount of spook within scareRangeFull
 	float scareRangeFull = 100.;  // within this range scare has full effect

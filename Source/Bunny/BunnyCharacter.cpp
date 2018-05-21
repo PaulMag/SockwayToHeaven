@@ -211,14 +211,27 @@ void ABunnyCharacter::Tick(float DeltaTime)
 	}
 }
 
-void ABunnyCharacter::takeDamage(float damage)
+void ABunnyCharacter::takeDamage(AEnemyCat* attacker, float damage)
+/* Launch the character through the air when taking damage. When reaching 0 health, die. */
 {
+	float launchSpeed;
 	health -= damage;
 	if (health <= 0)
 	{
+		launchSpeed = 50.;
 		health = 0;
 		death();
 	}
+	else
+	{
+		launchSpeed = 200.;
+	}
+	FVector velocity = GetActorLocation() - attacker->GetActorLocation();
+	velocity.Z = 0;
+	velocity /= velocity.Size();
+	velocity.Z = 0.4;
+	velocity *= launchSpeed;
+	LaunchCharacter(velocity, false, false);
 }
 
 void ABunnyCharacter::death()

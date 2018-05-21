@@ -59,9 +59,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
 		bool bIsDead = false;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
-		float healthMax = 1;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Variables)
+		float healthMax = 3;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Variables)
 		float health = healthMax;
 	float deathDuration = 3.5;  // how long to play death animation before going to menu
 	FTimerHandle timerHandle;
@@ -121,7 +121,7 @@ protected:
 		float DefaultJumpSpeed = 280.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
-		float DefaultAcceleration = 140.0f;
+		float DefaultAcceleration = 210.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Variables)
 		float DefaultDecelaration = 0.0f;
@@ -155,7 +155,7 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
-	void takeDamage(float damage=1);
+	void takeDamage(AEnemyCat* attacker, float damage=1.03);
 	void death();
 
 	/*

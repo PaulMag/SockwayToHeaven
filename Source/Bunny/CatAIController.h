@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "PatrolPoint.h"
 #include "BunnyCharacter.h"
 #include "EnemyCat.h"
 
@@ -20,6 +21,8 @@ protected:
 	enum { calm = 0, spooked = 1 };
 
 	AEnemyCat* pawn;
+	TArray<APatrolPoint*> patrolPoints;
+	APatrolPoint* patrolpointCurrent;
 	
 	virtual void BeginPlay() override;
 

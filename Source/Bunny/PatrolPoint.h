@@ -12,17 +12,14 @@ class BUNNY_API APatrolPoint : public AActor
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	APatrolPoint();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Variables)
+		int zone = 0;  // Specify patrol zones in the PatrolPoint instances.
+	
 	virtual void Tick(float DeltaTime) override;
-
-	
-	
 };

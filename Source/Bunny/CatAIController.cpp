@@ -13,17 +13,22 @@ ACatAIController::ACatAIController()
 void ACatAIController::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	TArray<AActor*> foundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APatrolPoint::StaticClass(), foundActors);
-	for (int i=0; i<foundActors.Num(); i++)
-	{
-		patrolPoints.Add(Cast<APatrolPoint>(foundActors[i]));
-	}
 
 	playerPawn = Cast<ABunnyCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
 	pawn = Cast<AEnemyCat>(GetPawn());
 	pawn->controller = this;
+	
+	TArray<AActor*> foundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APatrolPoint::StaticClass(), foundActors);
+	APatrolPoint* patrolPoint;
+	for (int i=0; i<foundActors.Num(); i++)
+	{
+		patrolPoint = Cast<APatrolPoint>(foundActors[i]);
+		if (patrolPoint->zone == pawn->patrolZone)
+		{
+			patrolPoints.Add(patrolPoint);
+		}
+	}
 	takeAction();
 }
 

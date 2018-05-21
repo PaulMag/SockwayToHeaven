@@ -66,6 +66,9 @@ protected:
 	
 public:	
 	ACatAIController* controller;  // is set by the controller itself
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Variables)
+		int patrolZone = 0;  // Which patrolPoints to go to. Specify in instance.
+
 	AEnemyCat();
 	virtual void Tick(float DeltaTime) override;
 	float getAttackReach();

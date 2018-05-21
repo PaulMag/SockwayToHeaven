@@ -289,8 +289,19 @@ void ABunnyCharacter::MoveForward(float Value)
 	{
 		if (bIsClimbing)
 		{
-			float deltaZ = GetCharacterMovement()->MaxWalkSpeed * climbSpeedRatio * Value * GetWorld()->DeltaTimeSeconds;
-			AddActorWorldOffset(FVector(0, 0, deltaZ), true);
+			// When climbing, orient control according to orientation of the wall
+			float yaw = GetActorRotation().Yaw;
+			float deltaY = 0;
+			float deltaZ = 0;
+			if (yaw >= -45 && yaw < 45)
+				deltaZ = GetCharacterMovement()->MaxWalkSpeed * climbSpeedRatio * Value * GetWorld()->DeltaTimeSeconds;
+			else if (yaw >= 45 && yaw < 135)
+				deltaY = - GetCharacterMovement()->MaxWalkSpeed * climbSpeedRatio * Value * GetWorld()->DeltaTimeSeconds;
+			else if (yaw >= -135 && yaw < 45)
+				deltaY = GetCharacterMovement()->MaxWalkSpeed * climbSpeedRatio * Value * GetWorld()->DeltaTimeSeconds;
+			else
+				deltaZ = - GetCharacterMovement()->MaxWalkSpeed * climbSpeedRatio * Value * GetWorld()->DeltaTimeSeconds;
+			AddActorLocalOffset(FVector(0, deltaY, deltaZ), true);
 		}
 		else if (bIsVaulting)
 		{
@@ -307,11 +318,21 @@ void ABunnyCharacter::MoveRight(float Value)
 {
 	if ((Controller != NULL) && (Value != 0.0f))
 	{
-		// find out which way is right
 		if (bIsClimbing)
 		{
-			float deltaY = GetCharacterMovement()->MaxWalkSpeed * climbSpeedRatio * Value * GetWorld()->DeltaTimeSeconds;
-			AddActorLocalOffset(FVector(0, deltaY, 0), true);
+			// When climbing, orient control according to orientation of the wall
+			float yaw = GetActorRotation().Yaw;
+			float deltaY = 0;
+			float deltaZ = 0;
+			if (yaw >= -45 && yaw < 45)
+				deltaY = GetCharacterMovement()->MaxWalkSpeed * climbSpeedRatio * Value * GetWorld()->DeltaTimeSeconds;
+			else if (yaw >= 45 && yaw < 135)
+				deltaZ = GetCharacterMovement()->MaxWalkSpeed * climbSpeedRatio * Value * GetWorld()->DeltaTimeSeconds;
+			else if (yaw >= -135 && yaw < 45)
+				deltaZ = -GetCharacterMovement()->MaxWalkSpeed * climbSpeedRatio * Value * GetWorld()->DeltaTimeSeconds;
+			else
+				deltaY = -GetCharacterMovement()->MaxWalkSpeed * climbSpeedRatio * Value * GetWorld()->DeltaTimeSeconds;
+			AddActorLocalOffset(FVector(0, deltaY, deltaZ), true);
 		}
 		else if (bIsVaulting)
 		{

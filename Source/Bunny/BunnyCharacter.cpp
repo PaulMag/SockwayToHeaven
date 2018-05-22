@@ -214,6 +214,8 @@ void ABunnyCharacter::Tick(float DeltaTime)
 void ABunnyCharacter::takeDamage(AEnemyCat* attacker, float damage)
 /* Launch the character through the air when taking damage. When reaching 0 health, die. */
 {
+	UGameplayStatics::PlaySound2D(GetWorld(), HitSound, 1.f, 1.f, 0.f);
+
 	float launchSpeed;
 	health -= damage;
 	if (health <= 0)
@@ -239,6 +241,7 @@ void ABunnyCharacter::death()
  * Deativates controls, plays death animation, and go to deathMenu after a few seconds
  */
 {
+	UGameplayStatics::PlaySound2D(GetWorld(), DeathSound, 1.f, 1.f, 0.f);
 	if (bIsDead)  // Can't die again.
 		return;
 	bIsDead = true;
@@ -371,6 +374,7 @@ void ABunnyCharacter::BeginOverlap(UPrimitiveComponent* OverlappedComponent,
 
 	if (effect == "climb")		//Treat result of overlapping according to what was encounterd
 	{
+		UGameplayStatics::PlaySound2D(GetWorld(), PowerUpSound, 1.f, 1.f, 0.f);
 		UE_LOG(LogTemp, Warning, TEXT("Caterpillar Encountered"));	//Overlaps the Caterpillar
 		bCanClimb = true;											//Gives player the ability to climb
 		UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
@@ -385,6 +389,7 @@ void ABunnyCharacter::BeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	}
 	else if (effect == "glide")  // As for Caterpillar, but with Glide
 	{
+		UGameplayStatics::PlaySound2D(GetWorld(), PowerUpSound, 1.f, 1.f, 0.f);
 		UE_LOG(LogTemp, Warning, TEXT("Squirrel Encountered"));
 		bCanGlide = true;
 		UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
@@ -399,6 +404,7 @@ void ABunnyCharacter::BeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	}
 	else if (effect == "scare")  // As for Caterpillar, but with Scare
 	{
+		UGameplayStatics::PlaySound2D(GetWorld(), PowerUpSound, 1.f, 1.f, 0.f);
 		bCanScare = true;
 		UBunnyGameInstance* BGI = Cast<UBunnyGameInstance>(GetGameInstance());
 		if (BGI)
@@ -412,6 +418,7 @@ void ABunnyCharacter::BeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	}
 	else if (effect == "end")  // Levels are designed to have only one "end" point
 	{
+		UGameplayStatics::PlaySound2D(GetWorld(), EndLevelSound, 1.f, 1.f, 0.f);
 		UE_LOG(LogTemp, Warning, TEXT("End Encountered"));
 		if (OverlappedActor->GetbIsDestructible())
 		{
@@ -444,7 +451,6 @@ void ABunnyCharacter::SwapLevel()							//Loads player into levels
 	if (CurrentLevel == "BunnyTutorialMap")					//Tests which level the player is in
 	{
 		UGameplayStatics::OpenLevel(GetWorld(), "Level1");	//And sends the player to the appropriate level
-
 	}
 	else if (CurrentLevel == "Level1")						//If already on Level 1
 	{
@@ -469,6 +475,7 @@ void ABunnyCharacter::toggleClimb()
 	}
 	if (bIsClimbing)
 	{
+		UGameplayStatics::PlaySound2D(GetWorld(), ClimbSound, 1.f, 1.f, 0.f);
 		stopClimbing();
 		return;
 	}
@@ -484,6 +491,7 @@ void ABunnyCharacter::toggleClimb()
 
 void ABunnyCharacter::startClimbing()
 {
+	UGameplayStatics::PlaySound2D(GetWorld(), ClimbSound, 1.f, 1.f, 0.f);
 	bIsClimbing = true;
 	GetCharacterMovement()->MovementMode = MOVE_Flying;
 	GetCharacterMovement()->Velocity = FVector(0, 0, 0);  // Stop any falling movement when grabbing.
@@ -530,6 +538,7 @@ void ABunnyCharacter::Jump()
 	else if (bCanJump)  // Normal Jump if not falling
 	{
 		bIsJumping = true;
+		UGameplayStatics::PlaySound2D(GetWorld(), JumpSound, 1.f, 1.f, 0.f);
 		ACharacter::Jump();
 	}
 }
@@ -546,8 +555,9 @@ void ABunnyCharacter::Glide()
 {
 	if (bCanGlide == true)			//If player has the ability to glide
 	{
-		if (bIsGliding != true)		//If player is not already gliding
+		if (bIsGliding != true && GetCharacterMovement()->IsFalling() == true)		//If player is not already gliding and is in the air
 		{
+			UGameplayStatics::PlaySound2D(GetWorld(), GlideSound, 1.f, 1.f, 0.f);
 			bIsGliding = true;		//Set the state that the player is gliding
 		}
 		GetCharacterMovement()->GravityScale = GlideGravityScale;	//And assign the glide values to gravity and air control
@@ -575,6 +585,7 @@ void ABunnyCharacter::scare()
 {
 	if (bCanScare && scareCooldown <= 0)
 	{
+		UGameplayStatics::PlaySound2D(GetWorld(), ScareSound, 1.f, 1.f, 0.f);
 		for (int i=0; i<enemyPawns.Num(); i++)
 		{
 			float distance = (GetActorLocation() - enemyPawns[i]->GetActorLocation()).Size();

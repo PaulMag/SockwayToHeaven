@@ -19,6 +19,33 @@ class BUNNY_API ABunnyCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
+	UPROPERTY(EditAnywhere, Category = Variables)
+	class USoundBase* JumpSound;
+
+	UPROPERTY(EditAnywhere, Category = Variables)
+	class USoundBase* PowerUpSound;
+
+	UPROPERTY(EditAnywhere, Category = Variables)
+	class USoundBase* HitSound;
+
+	UPROPERTY(EditAnywhere, Category = Variables)
+	class USoundBase* DeathSound;
+
+	UPROPERTY(EditAnywhere, Category = Variables)
+		class USoundBase* ButtonSound;
+
+	UPROPERTY(EditAnywhere, Category = Variables)
+		class USoundBase* EndLevelSound;
+
+	UPROPERTY(EditAnywhere, Category = Variables)
+		class USoundBase* GlideSound;
+
+	UPROPERTY(EditAnywhere, Category = Variables)
+		class USoundBase* ScareSound;
+
+	UPROPERTY(EditAnywhere, Category = Variables)
+		class USoundBase* ClimbSound;
+
 protected:
 	TArray<AEnemyCat*> enemyPawns;
 
